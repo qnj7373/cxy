@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>实验室管理系统登录</title>
+	<meta name="renderer" content="webkit">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<meta http-equiv="Access-Control-Allow-Origin" content="*">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="format-detection" content="telephone=no">
+	<link rel="icon" href="favicon.ico">
+	<link rel="stylesheet" href="/assets/css/main.css">
+
+</head>
+<body class="login-bg">
+
+<div  class="login layui-anim layui-anim-up">
+	<div class="message">DDblock-admin-管理登录</div>
+	<div id="darkbannerwrap"></div>
+	<div id="loginform">
+		<input name="username" placeholder="用户名" v-model="loginUser.userId" type="text" lay-verify="required" class="layui-input">
+		<hr class="hr15">
+		<input name="password" lay-verify="required" v-model="loginUser.password" placeholder="密码" type="password" class="layui-input">
+		<hr class="hr15">
+		<input value="登录" v-on:click="login"  lay-submit lay-filter="login" style="width:100%;" type="submit">
+	</div>
+</div>
+
+<script type="text/javascript" src="/js/libs/jquery.min.js"></script>
+<script type="text/javascript" src="/js/libs/layui/layui.js"></script>
+<script type="text/javascript" src="/js/libs/vue/vue.js"></script>
+<script type="text/javascript" src="/js/main.js"></script>
+<script type="text/javascript" src="/js/utils.js"></script>
+<script type="text/javascript" src="/js/libs/vue/vue-resource.js">
+</script>
+<script>
+
+    //全局数据
+    var G = {
+        loginUrl: "/system/login", // 登录接口
+    };
+    var APP = new Vue({
+        el: '#loginform',
+        // 数据
+        data: {
+            items: [],
+            count: 500,
+			loginUser:{
+                userId:"",
+                password:""
+			}
+        },
+    methods: {
+        //登录
+       login: function () {
+           messageLoading("登录中"+this.loginUser.userId);
+           //发送 post 请求
+           this.$http.post('/system/login',this.loginUser,{emulateJSON:true}).then(function(result){
+               if(result.data.status==200){
+                   messageOk(result.data.message);
+                   //location.href = 'index.html'
+                   location.href = '/index.html';
+			   }else {
+                   messageError(result.data.message);
+			   }
+           },function(res){
+               messageError("登录失败!");
+           });
+        },
+    }
+    });
+
+    $(function () {
+        layui.use('form', function () {
+            layer.msg("未登录或登录状态已过期，请登录！");
+        });
+    })
+
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,28 @@
+spring:
+  #mysql数据库相关配置
+  datasource:
+    url: jdbc:mysql://localhost:3306/userdb?serverTimezone=UTC&characterEncoding=utf8&userSSL=false
+    username: root
+    password: 123456
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: com.mysql.cj.jdbc.Driver
+   # ##########################
+  cache:
+    type: redis
+    redis:
+      time-to-live: 60000ms #缓存超时时间ms
+      cache-null-values: false #是否缓存空值
+  redis:
+    host: 127.0.0.1
+    timeout: 30s
+    jedis:
+      pool:
+        min-idle: 30
+        max-idle: 300
+        max-wait: -1ms
+        max-active: 300
+#mybatis依赖
+mybatis:
+  type-aliases-package: org.wzxy.breeze.model.po
+configuration:
+  log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
