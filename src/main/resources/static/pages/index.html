@@ -44,18 +44,36 @@
 <!-- 左侧菜单开始 -->
 <div class="left-nav">
 	<div id="side-nav">
+
+	<!--	111111111-->
 		<ul id="nav" >
-			<li v-for="item in menuList">
+			<li>
 				<a href="javascript:;">
 					<i class="iconfont">&#xe726;</i>
-					<cite>{{item.menuName}}</cite>
+					<cite>实验室管理</cite>
 					<i class="iconfont nav_right">&#xe697;</i>
 				</a>
 				<ul class="sub-menu">
 					<li>
 						<a v-on:click="testclick">
 							<i class="iconfont">&#xe6a7;</i>
-							<cite>{{item.menuName}}</cite>
+							<cite>实验室信息维护</cite>
+						</a>
+					</li>
+				</ul>
+				<ul class="sub-menu">
+					<li>
+						<a v-on:click="testclick">
+							<i class="iconfont">&#xe6a7;</i>
+							<cite>助理工作记录查看</cite>
+						</a>
+					</li>
+				</ul>
+				<ul class="sub-menu">
+					<li>
+						<a v-on:click="testclick">
+							<i class="iconfont">&#xe6a7;</i>
+							<cite>设备维修申请查看</cite>
 						</a>
 					</li>
 				</ul>
@@ -95,13 +113,10 @@
 <script type="text/javascript" src="js/libs/jquery.min.js "></script>
 <script type="text/javascript" src="js/libs/layui/layui.js "></script>
 <script type="text/javascript" src="js/main.js"></script>
-<script type="text/javascript" src="/js/libs/jquery.min.js"></script>
-<script type="text/javascript" src="/js/libs/layui/layui.js"></script>
 <script type="text/javascript" src="/js/libs/layui/layui.all.js"></script>
 <!--<script type="text/javascript" src="js/libs/layui/lay.modules/layer.js">
 </script>-->
 <script type="text/javascript" src="/js/libs/vue/vue.js"></script>
-<script type="text/javascript" src="/js/main.js"></script>
 <script type="text/javascript" src="/js/utils.js"></script>
 <script type="text/javascript" src="/js/libs/vue/vue-resource.js">
 </script>
@@ -117,9 +132,9 @@
             menuList:[
 			]
         },
-        mounted: function () {
+       /* mounted: function () {
              this.getMenu();
-        },
+        },*/
         methods: {
             getMenu: function () {
                 messageOk("getMenu啊哈哈!");

@@ -29,47 +29,13 @@ public class LoginController {
     private IUserService UserService;
     private  ResponseResult Result = new ResponseResult();
     private ModelAndView mv = new ModelAndView();
+
     @GetMapping("/notLogin")
     public ModelAndView notLogin(){
         System.out.println("未登录或登录状态已过期，请重新登录");
         mv.setViewName("login");
-       // mv.setViewName("redirect:/templates/login.html");
         return mv;
     }
-/*
-    @PostMapping("/login")
-    public ModelAndView login(users loginUser){
-        System.out.println("第N次"+"登录"+" "+loginUser.getUserId()+" "+loginUser.getPassword());
-        //添加用户认证信息
-        Subject subject = SecurityUtils.getSubject();
-        UsernamePasswordToken upToken = new UsernamePasswordToken(
-               String.valueOf(loginUser.getUserId())  ,
-                loginUser.getPassword()
-        );
-        try{
-            //进行验证，这里可以捕获异常，然后返回相应的信息
-            subject.login(upToken);
-            subject.getSession().setTimeout(600000L);
-        }catch (AuthenticationException e){
-               e.printStackTrace();
-            Result.setStatus(ResponseCode.getErrorcode());
-            Result.setMessage("账号或密码错误");
-            mv.setViewName("login");
-               return mv;
-        }catch (AuthorizationException e){
-            e.printStackTrace();
-            Result.setStatus(ResponseCode.getErrorcode());
-            Result.setMessage("无权限访问");
-            mv.setViewName("login");
-            return mv;
-        }
-        System.out.println("登录成功le");
-        Result.setStatus(ResponseCode.getOkcode());
-        Result.setMessage("登录成功");
-        mv.addObject("result", Result);
-        mv.setViewName("index");
-        return mv;
-    }*/
 
     @PostMapping("/login")
     public ResponseResult login(users loginUser){
@@ -96,6 +62,9 @@ public class LoginController {
             return Result;
         }
         System.out.println("登录成功le");
+        if(1==1){
+            Result.setUrl("TechnicianIndex");
+        }
         Result.setStatus(ResponseCode.getOkcode());
         Result.setMessage("登录成功");
         return Result;

@@ -7,6 +7,7 @@ package org.wzxy.breeze.model.vo;
 
 public class ResponseResult<T> {
     private String message;
+    private String url;
     private T data;;
     private int status;
 
@@ -32,5 +33,14 @@ public class ResponseResult<T> {
 
     public void setStatus(int status) {
         this.status = status;
+    }
+
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
     }
 }

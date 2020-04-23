@@ -51,8 +51,7 @@ public class shiroConfig {
         ShiroFilterFactoryBean shiroFilterFactoryBean = new ShiroFilterFactoryBean();
         shiroFilterFactoryBean.setSecurityManager(securityManager);
         //未登录
-        //shiroFilterFactoryBean.setLoginUrl("/system/notLogin");
-        shiroFilterFactoryBean.setLoginUrl("/system/login");
+        shiroFilterFactoryBean.setLoginUrl("/system/notLogin");
         Map<String,String> map = new LinkedHashMap<String, String>();
         //登录
         map.put("/system/login", "anon");
