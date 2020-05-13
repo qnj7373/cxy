@@ -189,10 +189,28 @@ function x_admin_open(title, url, w, h) {
 }
 
 // 打开一最大化的窗口
+function x_open_max(title, url) {
+    var index = layer.open({
+        type: 2,
+        area: ['100%','100%'],
+        title: title,
+        content: url,
+        maxmin: false,
+        success : function(layero, index){
+            setTimeout(function(){
+                layui.layer.tips('点击此处返回列表', '.layui-layer-setwin .layui-layer-close', {
+                    tips: 3
+                });
+            },500)
+        }
+    });
+}
+
+// 打开一个用做编辑新增的窗口
 function x_open_full(title, url) {
 	var index = layer.open({
 		type: 2,
-		area: ['100%','100%'],
+		area: ['70%','80%'],
 		title: title,
 		content: url,
 		maxmin: false,

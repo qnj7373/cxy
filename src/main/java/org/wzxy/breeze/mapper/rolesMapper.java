@@ -21,4 +21,16 @@ public interface rolesMapper {
             )
     })
     List<role> findRoleByUserId(int userId);
+
+
+    @Select("SELECT * FROM role WHERE roleId IN (SELECT roleId FROM user_role WHERE uid=#{uid})")
+    @Results({
+            @Result(id=true,column="roleId",property="roleId"),
+            @Result(column="roleName",property="roleName"),
+            @Result(column="roleGroup",property="roleGroup"),
+            @Result(column = "roleId",property = "menus",
+                    one = @One(select = "org.wzxy.breeze.mapper.menusMapper.findMenuByRoleId",fetchType = FetchType.LAZY)
+            )
+    })
+    List<role> findRoleByUid(int uid);
 }

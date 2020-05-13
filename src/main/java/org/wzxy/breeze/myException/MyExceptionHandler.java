@@ -17,6 +17,7 @@ public class MyExceptionHandler {
     @ExceptionHandler
     @ResponseBody
     public String ErrorHandler(AuthorizationException e){
+        System.out.println("无权限哦~");
         e.printStackTrace();
         return  "无权限访问";
     }

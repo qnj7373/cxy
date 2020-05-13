@@ -71,7 +71,7 @@ public interface usersMapper {
         }
 
         public  String deleteUser(users user){
-            sql.append("DELETE * from users");
+            sql.append("DELETE  from users");
             if(user.getUserId()!=0){
                 sql.append(" WHERE userId = #{userId}");
             }

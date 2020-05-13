@@ -7,7 +7,6 @@ import org.wzxy.breeze.mapper.usersMapper;
 import org.wzxy.breeze.model.po.menu;
 import org.wzxy.breeze.model.po.role;
 import org.wzxy.breeze.model.po.users;
-import org.wzxy.breeze.service.IUserService;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -17,7 +16,7 @@ import java.util.*;
  * @create 2020-03
  */
 @Service
-public class userServiceImpl implements IUserService {
+public class usersServiceImpl implements IUsersService {
 
     @Resource
     private usersMapper usersmapper;
@@ -66,7 +65,7 @@ public class userServiceImpl implements IUserService {
 
     @CacheEvict(value = "userZone" , key = "'findAllUser'")
     @Override
-    public List<users> delect() {
+    public List<users> delete() {
         System.out.println("进入了业务逻辑层");
         userList=usersmapper.findAllUser();
         return userList;

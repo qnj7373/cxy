@@ -10,7 +10,6 @@ import java.io.Serializable;
  * @author 覃能健
  * @create 2020-03
  */
-//@JsonIgnoreProperties(value = { "hibernateLazyInitializer", "handler" })
 @Validated
 @JsonIgnoreProperties(value={"hibernateLazyInitializer","handler","fieldHandler"})
 public class profiles  implements Serializable {

@@ -20,19 +20,34 @@
 	<div class="message">实验室管理系统登录</div>
 	<div id="darkbannerwrap"></div>
 	<div id="loginform">
-		<input name="username" placeholder="用户名" v-model="loginUser.userId" type="text" lay-verify="required" class="layui-input">
+		<input name="username" placeholder="用户名" v-model="loginUser.uid" autocomplete="off"  type="text" lay-verify="required" class="layui-input">
 		<hr class="hr15">
-		<input name="password" lay-verify="required" v-model="loginUser.password" placeholder="密码" type="password" class="layui-input">
+		<input name="password" lay-verify="required" v-model="loginUser.upwd" placeholder="密码" type="password"   autocomplete="off" class="layui-input">
 		<hr class="hr15">
-		<input value="登录" v-on:click="login"  lay-submit lay-filter="login" style="width:100%;" type="submit">
+         <div>
+        <button  v-on:click="login"  style="width:100%;height:50px;" class="layui-btn layui-btn-normal" type="button">
+            <i class="layui-icon">&#xe672;</i>
+            登录
+        </button>
+        </div>
+        <div style="margin-top:5px;">
+        <button v-on:click="" style="width:100%;height:50px;" class="layui-btn layui-btn-danger" type="button">
+            <i class="layui-icon">&#xe66f;</i>
+            注册
+        </button>
+        </div>
 	</div>
 </div>
-
-<script type="text/javascript" src="/js/libs/jquery.min.js"></script>
-<script type="text/javascript" src="/js/libs/layui/layui.js"></script>
-<script type="text/javascript" src="/js/libs/vue/vue.js"></script>
-<script type="text/javascript" src="/js/main.js"></script>
-<script type="text/javascript" src="/js/utils.js"></script>
+<script type="text/javascript" src="/js/libs/jquery.min.js">
+</script>
+<script type="text/javascript" src="/js/libs/layui/layui.js">
+</script>
+<script type="text/javascript" src="/js/libs/vue/vue.js">
+</script>
+<script type="text/javascript" src="/js/main.js">
+</script>
+<script type="text/javascript" src="/js/utils.js">
+</script>
 <script type="text/javascript" src="/js/libs/vue/vue-resource.js">
 </script>
 <script>
@@ -48,25 +63,28 @@
             items: [],
             count: 500,
 			loginUser:{
-                userId:"",
-                password:""
+                uid:"",
+                upwd:""
 			}
         },
     methods: {
         //登录
        login: function () {
-           messageLoading("登录中"+this.loginUser.userId);
            //发送 post 请求
            this.$http.post('/system/login',this.loginUser,{emulateJSON:true}).then(function(result){
                if(result.data.status==200){
-                   messageOk(result.data.message);
+                   messageFine(result.data.message);
                    window.location.href="/"+result.data.url;
 			   }else {
-                   messageError(result.data.message);
+                  messageError(result.data.message);
 			   }
            },function(res){
+
                messageError("登录失败!");
            });
+
+
+
         },
     }
     });

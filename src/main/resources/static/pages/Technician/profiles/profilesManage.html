@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+
+<head>
+	<meta charset="UTF-8">
+	<title>数据列表页面</title>
+	<meta name="renderer" content="webkit">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<meta http-equiv="Access-Control-Allow-Origin" content="*">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="format-detection" content="telephone=no">
+	<link rel="stylesheet" href="/assets/css/main.css">
+
+</head>
+
+<body>
+
+<div class="x-body" id="app">
+	<div class="layui-row">
+		<form class="layui-form layui-col-md12 x-so">
+			<div class="layui-inline">
+				<div class="layui-input-inline">
+					<input v-model="searchName" class="layui-input layui-input-sm" placeholder="实验室名称" name="searchName">
+				</div>
+				<button v-on:click="findByName" class="layui-btn layui-btn-normal layui-btn-radius" type="button">
+					<i class="layui-icon">&#xe615;</i>
+					搜索
+				</button>
+				<button v-on:click="backIndex"  class="layui-btn layui-btn-warm layui-btn-radius" type="button">
+					<i class="layui-icon">&#xe65c;</i>
+					返回初始页
+				</button>
+			</div>
+		</form>
+	</div>
+
+	<blockquote class="layui-elem-quote layui-elem-quote-sm">
+		助理档案列表
+	</blockquote>
+
+	<div class="layui-form table-responsive">
+		<table class="layui-table" id="tableId" lay-filter="tableId">
+			<thead>
+			<tr>
+				<th>助理编号</th>
+				<th>所属实验室编号</th>
+				<th>姓名</th>
+				<th>专业</th>
+				<th>年级</th>
+				<th>电话</th>
+				<th>身份状态</th>
+				<th>操作</th>
+			</thead>
+			<tbody>
+			<tr v-for="item in items">
+				<td>{{ item.personId }}</td>
+				<td>{{ item.labId }}</td>
+				<td>{{ item.personName }}</td>
+				<td>{{ item.major }}</td>
+				<td>{{ item.grade }}</td>
+				<td>{{ item.tel }}</td>
+				<td>{{ item.hirSta }}</td>
+				<td class="td-manage">
+					<button   class="layui-btn layui-btn-default layui-btn-xs"
+							 @click="details(item)">
+						<i class="layui-icon">&#xe60f;</i>
+						详细信息</button>
+					<button class="layui-btn layui-btn-default layui-btn-xs"
+					        @click="profilesEdit(item)">
+						<i class="layui-icon">&#xe642;</i>
+						编辑</button>
+					<button class="layui-btn layui-btn-danger layui-btn-xs"  v-on:click="removeMember(item)">
+						<i class="layui-icon">&#xe640;</i>
+						删除
+					</button>
+				</td>
+			</tr>
+			</tbody>
+		</table>
+	</div>
+
+	<div v-if="items.length==0" class="text-center layui-bg-gray no-records">对不起，暂无记录.</div>
+
+	<!-- 分页组件 -->
+	<div id="pagination" class="layui-box"></div>
+
+</div>
+
+
+
+<script type="text/javascript" src="/js/libs/jquery.min.js">
+</script>
+<script type="text/javascript" src="/js/libs/layui/layui.js">
+</script>
+<script type="text/javascript" src="/js/libs/vue/vue.js">
+</script>
+<script type="text/javascript" src="/js/main.js">
+</script>
+<script type="text/javascript" src="/js/utils.js">
+</script>
+<script type="text/javascript" src="/js/libs/vue/vue-resource.js">
+</script>
+<script>
+	//全局数据
+	var G = {
+		page: 0,
+		pagesize: 10
+	};
+	// 初始化 Vue 组件
+	var APP = new Vue({
+		el: '#app',
+		// 数据
+		data: {
+			items: [
+			],
+			count:"",
+            searchName:"",
+            searchDepId:""
+		},
+        created: function () {
+            this.queryProfilesByPage(0,10);
+            this.$nextTick(function () {
+                layui.use(['laypage','form'], function () {
+                    var laypage = layui.laypage;
+                    //执行一个laypage实例
+                    laypage.render({
+                        elem: 'pagination', //分页container ID，不用加 # 号
+                        limit: G.pagesize, //页面显示记录条数
+                        count: APP.$data.count, //数据总数，从服务端得到
+                        groups: 5,
+                        layout: ['prev', 'page', 'next','limit','count'],
+                        prev: '<i class="layui-icon layui-icon-left"></i>',
+                        next: '<i class="layui-icon layui-icon-right"></i>',
+                        jump: function (obj, first) {
+                            //首次不执行
+                            if (first) {
+                                //do something
+                                return;
+                            }
+                            render(obj.curr, obj.limit);
+                        }
+
+                    });
+
+                });
+            })
+        },
+		// 逻辑处理方法
+		methods: {
+
+            queryProfilesByPage: function ( nowPage,pageSize ) {
+                //发送 get 请求
+                this.$http.get('/personInfo/queryPerPageBylabIdAndHsta', {
+                    params: {
+                        nowPage: nowPage,
+                        pageSize: pageSize
+                    }
+                }, {emulateJSON: true}).then(function (result) {
+                    if (result.data.status == 200) {
+                        this.items = result.data.data.datas;
+                        this.count = result.data.data.dataTotalCount;
+                       // this.searchDepId = result.data.data.commonFlag;
+                    } else {
+                        messageError(result.data.message);
+                    }
+                }, function (result) {
+                    messageError("服务器内部出错!");
+                });
+
+            },
+
+            delProfile: function (personIdVal) {
+                //发送 get 请求
+                this.$http.get('/personInfo/deletePersonById', {params: {personId: personIdVal}}, {emulateJSON: true}).then(function (result) {
+                    if (result.data.status == 200) {
+                        messageOk(result.data.message);
+                        render(G.page, G.pagesize);
+                    } else {
+                        messageError(result.data.message);
+                    }
+                }, function (result) {
+                    messageError("服务器内部出错!");
+                });
+            },
+
+
+			//删除一行数据
+			removeMember: function (item) {
+				var that = this;
+				var index = top.layer.confirm('确认要删除吗？', function () {
+					top.layer.close(index);
+                    that.delProfile(item.personId);
+                });
+
+			},
+
+            findByName: function () {
+                //发送 get 请求
+                this.$http.get('/laboratory/queryLabByNameAndDep', {
+                    params: {
+                        labName: this.searchName,
+                        depId: this.searchDepId
+                    }
+                }, {emulateJSON: true}).then(function (result) {
+                    if (result.data.status == 200) {
+                        messageFine(result.data.message);
+                        this.count = result.data.data.length;
+                        this.items=result.data.data;
+                    } else {
+                        messageError(result.data.message);
+                    }
+                }, function (result) {
+                    messageError("服务器内部出错!");
+                });
+            },
+            backIndex: function () {
+                this.queryLabByPage(0, 10);
+            },
+            details: function (item) {
+                x_open_full('档案细节','profilesDetails.html?#'+item.personId);
+            },
+			profilesEdit: function (item) {
+				x_open_full('档案信息编辑','profilesEdit.html?#'+item.personId);
+			}
+		},
+    }); //end Vue
+
+
+
+    /**
+     * 渲染数据列表
+     * @param page
+     * @param pagesize
+     */
+    function render(page, pagesize) {
+        if (page==0&&pagesize==0){
+            this.APP.queryLabByPage(0, 10);
+		}else{
+            this.APP.queryLabByPage(page, pagesize);
+		}
+    }
+
+</script>
+
+
+</body>
+</html>

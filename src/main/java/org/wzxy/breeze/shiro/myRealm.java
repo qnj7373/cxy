@@ -10,9 +10,9 @@ import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.wzxy.breeze.model.po.User;
 import org.wzxy.breeze.model.po.menu;
 import org.wzxy.breeze.model.po.role;
-import org.wzxy.breeze.model.po.users;
 import org.wzxy.breeze.service.IUserService;
 
 import java.util.ArrayList;
@@ -32,9 +32,11 @@ public class myRealm extends AuthorizingRealm {
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principalCollection) {
       String userId = principalCollection.getPrimaryPrincipal().toString();
-        users user=new users();
-        List<users> userList =new ArrayList<>();
-        user.setUserId(Integer.parseInt(userId));
+        //users user=new users();
+        User user=new User();
+        List<User> userList =new ArrayList<>();
+        user.setUid(Integer.parseInt(userId));
+       //UserId(Integer.parseInt(userId));
         userList=UserService.findUserByFactor(user);
         if(userList!=null){
             user= userList.get(0);
@@ -62,11 +64,16 @@ public class myRealm extends AuthorizingRealm {
         }
         String id = authenticationToken.getPrincipal().toString();
         String pwd = new String((char[]) authenticationToken.getCredentials());
-        users user = new users();
-        List<users> userList = new ArrayList<>();
-        user.setUserId(Integer.parseInt(id));
-        user.setPassword(pwd);
-        System.out.println("认证 "+user.getUserId()+"  "+user.getPassword());
+        //User容器
+        User user = new User();
+        //users user = new users();
+       // List<users> userList = new ArrayList<>();
+        List<User> userList = new ArrayList<>();
+       // user.setUserId(Integer.parseInt(id));
+       // user.setPassword(pwd);
+        user.setUid(Integer.parseInt(id));
+        user.setUpwd(pwd);
+        System.out.println("认证 "+user.getUid()+"  "+user.getUpwd());
         userList = UserService.findUserByFactor(user);
         if (userList==null){
             //抛出异常
@@ -75,9 +82,15 @@ public class myRealm extends AuthorizingRealm {
         }else{
             user=userList.get(0);
          //这里验证authenticationToken和simpleAuthenticationInfo的信息
-            SimpleAuthenticationInfo simpleAuthenticationInfo =
+           /* SimpleAuthenticationInfo simpleAuthenticationInfo =
                     new SimpleAuthenticationInfo//(user,user.getPassword(),this.getName());
                     (user.getUserId(),user.getPassword(), this.getName());
+                    //String.valueOf(user.getUserId())*/
+
+
+            SimpleAuthenticationInfo simpleAuthenticationInfo =
+                    new SimpleAuthenticationInfo//(user,user.getPassword(),this.getName());
+                    (user.getUid(),user.getUpwd(), this.getName());
                     //String.valueOf(user.getUserId())
             return simpleAuthenticationInfo;
         }

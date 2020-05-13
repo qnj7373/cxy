@@ -52,11 +52,11 @@ public class shiroConfig {
         shiroFilterFactoryBean.setSecurityManager(securityManager);
         //未登录
         shiroFilterFactoryBean.setLoginUrl("/system/notLogin");
+        //shiroFilterFactoryBean.setLoginUrl("/pages/login.html");
         Map<String,String> map = new LinkedHashMap<String, String>();
         //登录
         map.put("/system/login", "anon");
         //对静态资源放行
-      //  map.put("/static/**","anon");
         map.put("/images/**","anon");
         map.put("/assets/**","anon");
         map.put("/css/**","anon");
@@ -65,7 +65,7 @@ public class shiroConfig {
         //退出
         map.put("/logout", "logout");
         //对所有用户认证
-        map.put("/**", "authc");
+       map.put("/**", "authc");
         //首页
        // shiroFilterFactoryBean.setSuccessUrl("/index");
         //错误页面，认证不通过跳转

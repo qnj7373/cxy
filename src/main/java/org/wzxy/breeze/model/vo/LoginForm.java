@@ -16,13 +16,18 @@
 
 package org.wzxy.breeze.model.vo;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import java.io.Serializable;
+
 /**
  * 登录表单
  *
  * @author Mark 1179764774@qq.com
  * @since 2.0.0 2018-01-25
  */
-public class LoginForm {
+@JsonIgnoreProperties(value={"hibernateLazyInitializer","handler","fieldHandler"})
+public class LoginForm implements Serializable {
     private String username;
     private String password;
     private String captcha;

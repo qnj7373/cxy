@@ -168,7 +168,7 @@
 					// 发异步删除数据
 					httpGet(G.delUrl, function (result) {
 						messageOk("删除成功!");
-						render(G.page, G.pasize);
+						render(G.page, G.pagesize);
 					}, function (message) {
 						messageOk("删除失败!");
 					})

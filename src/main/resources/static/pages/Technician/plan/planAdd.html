@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>添加数据页面</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta http-equiv="Access-Control-Allow-Origin" content="*">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <link rel="icon" href="favicon.ico">
+    <link rel="stylesheet" href="/assets/css/main.css">
+
+</head>
+
+<body>
+<div class="x-body" id="app">
+    <form  class="layui-form">
+        <div class="layui-form-item">
+        <label for="depId" class="layui-form-label">
+            <span class="text-color-red">*</span>
+            部门编号
+        </label>
+        <div class="layui-input-inline">
+            <input type="text" id="depId" name="depId" v-model="planDto.depId" readonly="readonly" required="" lay-verify="required" autocomplete="off" class="layui-input">
+        </div>
+            <div class="layui-form-mid layui-word-aux">
+                此项暂不能更改
+            </div>
+    </div>
+
+        <div class="layui-form-item">
+        <label for="depName" class="layui-form-label">
+            <span class="text-color-red">*</span>
+            部门名称
+        </label>
+        <div class="layui-input-inline">
+            <input readonly="readonly" type="text" id="depName" name="depName" v-model="planDto.depName" required="" lay-verify="required" autocomplete="off" class="layui-input">
+        </div>
+            <div class="layui-form-mid layui-word-aux">
+                此项暂不能更改
+            </div>
+    </div>
+
+
+
+        <div class="layui-form-item">
+            <label  class="layui-form-label">
+                <span class="text-color-red">*</span>
+                实验室
+            </label>
+            <div class="layui-input-inline" >
+                <select name="labId"   lay-filter="labId"  lay-verify="required" >
+                    <option placeholder="请选择"></option>
+                    <option v-for="item,index in planDto.labList" :value="item.labId" v-html="item.labName" ></option>
+                </select>
+            </div>
+            <div class="layui-form-mid layui-word-aux">
+                只能选择本部门的实验室
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label for="techId" class="layui-form-label">
+                <span class="text-color-red">*</span>
+                申请人编号
+            </label>
+            <div class="layui-input-inline">
+                <input readonly="readonly" type="text" id="techId" name="techId" v-model="planDto.techDto.techId" required="" lay-verify="required" autocomplete="off" class="layui-input">
+            </div>
+            <div class="layui-form-mid layui-word-aux">
+                此项暂不能更改
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label for="techName" class="layui-form-label">
+                <span class="text-color-red">*</span>
+                申请人姓名
+            </label>
+            <div class="layui-input-inline">
+                <input  readonly="readonly" type="text" id="techName" name="techName" v-model="planDto.techDto.techName" required="" lay-verify="required" autocomplete="off" class="layui-input">
+            </div>
+            <div class="layui-form-mid layui-word-aux">
+                此项暂不能更改
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label for="planName" class="layui-form-label">
+                <span class="text-color-red">*</span>
+                计划名称
+            </label>
+            <div class="layui-input-inline">
+                <input type="text" id="planName" name="planName" v-model="planDto.planName" required="" lay-verify="required" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label for="requirement" class="layui-form-label">
+                <span class="text-color-red">*</span>
+                岗位要求
+            </label>
+            <div class="layui-input-inline">
+                <textarea style="width:350px;height:200px;" id="requirement" name="requirement"
+                          v-model="planDto.requirement" required="" lay-verify="required" autocomplete="off" ></textarea>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label for="number" class="layui-form-label">
+                <span class="text-color-red">*</span>
+                招聘人数
+            </label>
+            <div class="layui-input-inline">
+                <input type="text" id="number" name="number" v-model="planDto.number" required="" lay-verify="required" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+
+
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">
+                <!-- placeholder -->
+            </label>
+            <button  type="button" class="layui-btn"  v-on:click="addPlan">确认发布</button>
+            <button type="button" class="layui-btn layui-btn-danger " v-on:click="close" >取消</button>
+        </div>
+    </form>
+</div>
+
+<script type="text/javascript" src="/js/libs/jquery.min.js "></script>
+<script type="text/javascript" src="/js/libs/layui/layui.js"></script>
+<script type="text/javascript" src="/js/libs/vue/vue.js"></script>
+<script type="text/javascript" src="/js/main.js"></script>
+<script type="text/javascript" src="/js/utils.js"></script>
+<script type="text/javascript" src="/js/libs/vue/vue-resource.js">
+</script>
+
+<script>
+    // 初始化 Vue 组件
+    var APP = new Vue({
+        el: '#app',
+        // 数据
+        data: {
+            planDto: {
+                planId: "",
+                planName: "",
+                requirement: "",
+                number: "",
+                labId: "",
+                labName: "",
+                depId: "",
+                depName: "",
+                techId: "",
+                techName: "",
+                planSta: "",
+                techDto:{},
+                labList: [
+
+                ]
+            },
+            contents:""
+        },
+        created: function () {
+            this.toAdd();
+            initForm();
+        },
+        methods: {
+            initLabId: function (val) {
+               this.planDto.labId=val;
+            },
+            toAdd: function () {
+                //发送 get 请求
+                this.$http.get('/plan/toadd',{emulateJSON:true}).then(function(result){
+                    if(result.data.status==200){
+                        this.planDto=result.data.data;
+                    }else {
+                        messageError(result.data.message);
+                    }
+                },function(result){
+                    messageError("服务器内部出错!");
+                });
+
+            },
+            addPlan: function () {
+                if(this.planDto.labId){
+                    this.planDto.techId= this.planDto.techDto.techId;
+                    this.planDto.techName=this.planDto.techDto.techName;
+                    //发送 post 请求
+                    this.$http.post('/plan/addPlan',
+                        this.planDto,{emulateJSON:true}).then(function(result){
+                        messageLoading();
+                        if(result.data.status==200){
+                            messageOk(result.data.message);
+                            //关闭弹出层
+                            x_admin_close("reload");
+                        }else {
+                            messageError(result.data.message);
+                        }
+                    },function(res){
+                        messageError("服务器内部出错!请重试~");
+                    });
+                }else{
+                    messagefail("未选择实验室！");
+                }
+
+            },
+
+
+            close: function () {
+                //关闭弹出层
+                x_admin_close("app");
+            }
+        },
+
+    });//end vue
+
+    function initForm() {
+            layui.use('form', function () {
+                var form = layui.form;
+                form.render('select');
+                form.on('select(labId)',function (data) {
+                    rend(data.value);
+                });
+            });
+        }
+    function rend(val) {
+        this.APP.initLabId(val);
+    }
+</script>
+
+</body>
+
+</html>

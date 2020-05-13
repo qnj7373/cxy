@@ -1,6 +1,6 @@
 package org.wzxy.breeze.service;
 
-import org.wzxy.breeze.model.po.users;
+import org.wzxy.breeze.model.po.User;
 
 import java.util.List;
 
@@ -10,13 +10,13 @@ import java.util.List;
  */
 public interface IUserService {
 
-     List<users> findUserByFactor(users user);
+     List<User> findUserByFactor(User user);
 
-     List<users> findAllUser();
+     List<User> findAllUser();
 
-     List<users> delect();
+     List<User> delete();
 
-     users login(users user);
+     User login(User user);
 
-     int deleteUser(users user);
+     int deleteUser(User user);
 }

@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+
+<head>
+	<meta charset="UTF-8">
+	<title>数据列表页面</title>
+	<meta name="renderer" content="webkit">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<meta http-equiv="Access-Control-Allow-Origin" content="*">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="format-detection" content="telephone=no">
+	<link rel="stylesheet" href="/assets/css/main.css">
+
+</head>
+
+<body>
+
+<div class="x-body" id="app">
+	<div class="layui-row">
+		<form class="layui-form layui-col-md12 x-so">
+			<div class="layui-inline">
+				<div class="layui-input-inline">
+					<input v-model="searchDate" type="date" class="layui-input layui-input-sm" placeholder="实验室名称" name="searchName">
+				</div>
+				<button v-on:click="findByDate" class="layui-btn layui-btn-normal layui-btn-radius" type="button">
+					<i class="layui-icon">&#xe615;</i>
+					按日期查询
+				</button>
+				<button v-on:click="backIndex"  class="layui-btn layui-btn-warm layui-btn-radius" type="button">
+					<i class="layui-icon">&#xe65c;</i>
+					返回初始页
+				</button>
+			</div>
+		</form>
+	</div>
+
+	<blockquote class="layui-elem-quote layui-elem-quote-sm">
+		工作记录列表
+	</blockquote>
+
+	<div class="layui-form table-responsive">
+		<table class="layui-table" id="tableId" lay-filter="tableId">
+			<thead>
+			<tr>
+				<th>记录编号</th>
+				<th>实验室编号</th>
+				<th>周次</th>
+				<th>日期</th>
+				<th>助理姓名</th>
+				<th>操作</th>
+			</thead>
+			<tbody>
+			<tr v-for="item in items">
+				<td>{{ item.recordId }}</td>
+				<td>{{ item.labId }}</td>
+				<td>{{ item.weeklyTimes }}</td>
+				<td>{{ item.recordDate }}</td>
+				<td>{{ item.personName }}</td>
+				<td class="td-manage" align="center">
+					<button  style="width:50%;height:30px;" class="layui-btn layui-btn-default layui-btn-xs"
+					        @click="Edit(item)">
+						<i class="layui-icon">&#xe60f;</i>
+						详细信息</button>
+				</td>
+			</tr>
+			</tbody>
+		</table>
+	</div>
+
+	<div v-if="items.length==0" class="text-center layui-bg-gray no-records">对不起，暂无记录.</div>
+
+	<!-- 分页组件 -->
+	<div id="pagination" class="layui-box"></div>
+
+</div>
+
+
+
+<script type="text/javascript" src="/js/libs/jquery.min.js">
+</script>
+<script type="text/javascript" src="/js/libs/layui/layui.js">
+</script>
+<script type="text/javascript" src="/js/libs/vue/vue.js">
+</script>
+<script type="text/javascript" src="/js/main.js">
+</script>
+<script type="text/javascript" src="/js/utils.js">
+</script>
+<script type="text/javascript" src="/js/libs/vue/vue-resource.js">
+</script>
+<script>
+	//全局数据
+	var G = {
+		page: 0,
+		pagesize: 10
+	};
+	// 初始化 Vue 组件
+	var APP = new Vue({
+		el: '#app',
+		// 数据
+		data: {
+			items: [
+			],
+			count:"",
+            searchDate:"",
+		},
+        created: function () {
+            this.queryRecordByPage(0,10);
+            this.$nextTick(function () {
+                layui.use(['laypage','form'], function () {
+                    var laypage = layui.laypage;
+                    //执行一个laypage实例
+                    laypage.render({
+                        elem: 'pagination', //分页container ID，不用加 # 号
+                        limit: G.pagesize, //页面显示记录条数
+                        count: APP.$data.count, //数据总数，从服务端得到
+                        groups: 5,
+                        layout: ['prev', 'page', 'next','limit','count'],
+                        prev: '<i class="layui-icon layui-icon-left"></i>',
+                        next: '<i class="layui-icon layui-icon-right"></i>',
+                        jump: function (obj, first) {
+                            //首次不执行
+                            if (first) {
+                                //do something
+                                return;
+                            }
+                            render(obj.curr, obj.limit);
+                        }
+
+                    });
+
+                });
+            })
+        },
+		// 逻辑处理方法
+		methods: {
+
+            queryRecordByPage: function ( nowPage,pageSize ) {
+                //发送 get 请求
+                this.$http.get('/workRecord/queryWorkRecordPageBylabId', {
+                    params: {
+                        nowPage: nowPage,
+                        pageSize: pageSize
+                    }
+                }, {emulateJSON: true}).then(function (result) {
+                    if (result.data.status == 200) {
+                        this.items = result.data.data.datas;
+                        this.count = result.data.data.dataTotalCount;
+                    } else {
+                        messageError(result.data.message);
+                    }
+                }, function (result) {
+                    messageError("服务器内部出错!");
+                });
+
+            },
+
+            findByDate: function () {
+                if(this.searchDate){
+                    //发送 get 请求
+                    this.$http.get('/workRecord/queryRecordBylabIdAndDate', {
+                        params: {
+                            recordDate: this.searchDate
+                        }
+                    }, {emulateJSON: true}).then(function (result) {
+                        if (result.data.status == 200) {
+                            messageFine(result.data.message);
+                            this.count = result.data.data.length;
+                            this.items=result.data.data;
+                        } else {
+                            messageError(result.data.message);
+                        }
+                    }, function (result) {
+                        messageError("服务器内部出错!");
+                    });
+
+				}else {
+                    messagefail("请先选定日期~");
+				}
+
+            },
+            backIndex: function () {
+                this.queryRecordByPage(0,10);
+            },
+			Edit: function (item) {
+				x_open_full('工作记录详细信息','workRecordEdit.html?#'+item.recordId);
+			}
+		},
+    }); //end Vue
+
+
+    /**
+     * 渲染数据列表
+     * @param page
+     * @param pagesize
+     */
+    function render(page, pagesize) {
+        if (page==0&&pagesize==0){
+            this.queryRecordByPage(0,10);
+		}else{
+            this.APP.queryRecordByPage(page, pagesize);
+		}
+    }
+
+</script>
+
+
+</body>
+</html>

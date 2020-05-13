@@ -9,7 +9,6 @@ import java.io.Serializable;
  * @create 2020-04
  */
 
-//@JsonIgnoreProperties(value = { "hibernateLazyInitializer", "handler" })
 @JsonIgnoreProperties(value={"hibernateLazyInitializer","handler","fieldHandler"})
 public class menu implements Serializable {
     private  String menuId;

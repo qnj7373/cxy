@@ -11,7 +11,6 @@
 	<meta name="apple-mobile-web-app-status-bar-style" content="black">
 	<meta name="apple-mobile-web-app-capable" content="yes">
 	<meta name="format-detection" content="telephone=no">
-	<link rel="icon" href="favicon.ico">
 	<link rel="stylesheet" href="assets/css/main.css">
 </head>
 
@@ -30,7 +29,9 @@
 			<dl class="layui-nav-child">
 				<!-- 二级菜单 -->
 				<dd>
-					<a href="/logout">注销登录</a>
+					<a href="/logout">
+						注销登录
+					</a>
 				</dd>
 			</dl>
 		</li>
@@ -62,7 +63,7 @@
 				</ul>
 				<ul class="sub-menu">
 					<li>
-						<a _href="pages/echarts/echarts1.html">
+						<a _href="pages/Technician/workRecord/workRecordList.html">
 							<i class="iconfont">&#xe6a7;</i>
 							<cite>助理工作记录查看</cite>
 						</a>
@@ -70,7 +71,7 @@
 				</ul>
 				<ul class="sub-menu">
 					<li>
-						<a _href="pages/echarts/echarts1.html">
+						<a _href="pages/Technician/maintenance/maintenanceList.html">
 							<i class="iconfont">&#xe6a7;</i>
 							<cite>设备维修申请查看</cite>
 						</a>
@@ -86,14 +87,14 @@
 				</a>
 				<ul class="sub-menu">
 					<li>
-						<a _href="pages/editor/editor-layui.html">
+						<a _href="pages/Technician/plan/planList.html">
 							<i class="iconfont">&#xe6a7;</i>
 							<cite>实验室助理招聘计划</cite>
 						</a>
 					</li>
 
 					<li>
-						<a _href="pages/editor/editor-nkeditor.html">
+						<a _href="pages/Technician/enlist/EnlistNav.html">
 							<i class="iconfont">&#xe6a7;</i>
 							<cite>报名信息查看</cite>
 						</a>
@@ -109,7 +110,7 @@
 				</a>
 				<ul class="sub-menu">
 					<li>
-						<a _href="pages/user/user-list.html">
+						<a _href="pages/Technician/profiles/profilesNav.html">
 							<i class="iconfont">&#xe6a7;</i>
 							<cite>录入应聘助理档案</cite>
 						</a>
@@ -117,7 +118,7 @@
 				</ul>
 				<ul class="sub-menu">
 					<li>
-						<a _href="pages/user/user-list.html">
+						<a _href="pages/Technician/profiles/profilesManage.html">
 							<i class="iconfont">&#xe6a7;</i>
 							<cite>助理档案管理</cite>
 						</a>
@@ -151,15 +152,15 @@
 <!-- 中部结束 -->
 <!-- 底部开始 -->
 <div class="footer">
-	<div class="copyright">Copyright ©2018 EX-admin All Rights Reserved</div>
+	<div class="copyright">软件构件与中间件期末课设作品</div>
 </div>
 <!-- 底部结束 -->
 </body>
 
-<script type="text/javascript" src="js/libs/jquery.min.js "></script>
-<script type="text/javascript" src="js/libs/layui/layui.js "></script>
-<script type="text/javascript" src="js/main.js"></script>
-<script type="text/javascript" src="js/utils.js"></script>
+<script type="text/javascript" src="/js/libs/jquery.min.js "></script>
+<script type="text/javascript" src="/js/libs/layui/layui.js "></script>
+<script type="text/javascript" src="/js/main.js"></script>
+<script type="text/javascript" src="/js/utils.js"></script>
 <script type="text/javascript" src="/js/libs/vue/vue.js"></script>
 <script type="text/javascript" src="/js/libs/vue/vue-resource.js">
 </script>
@@ -171,34 +172,6 @@
         },
         methods: {
 
-            labInfo: function () {
-                messageOk("labInfo!");
-                window.location.href="/"+"Technician/laboratory/labList";
-            },
-            labRcords: function () {
-                messageOk("labRcords!");
-                window.location.href="/"+"labInfoByTechId";
-            },
-            labMain: function () {
-                messageOk("labMain!");
-                window.location.href="/"+"labMain";
-            },
-            labPlan: function () {
-                messageOk("labMain!");
-                window.location.href="/"+"labMain";
-            },
-            labEnlist: function () {
-                messageOk("labEnlist!");
-                window.location.href="/"+"labMain";
-            },
-            enterPersonInfo: function () {
-                messageOk("labEnlist!");
-                window.location.href="/"+"labMain";
-            },
-            managePersonInfo: function () {
-                messageOk("labEnlist!");
-                window.location.href="/"+"labMain";
-            }
 
         }// methods end
 

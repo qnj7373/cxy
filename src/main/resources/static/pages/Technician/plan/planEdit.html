@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>数据编辑页面</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta http-equiv="Access-Control-Allow-Origin" content="*">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <link rel="icon" href="favicon.ico">
+    <link rel="stylesheet" href="/assets/css/main.css">
+
+</head>
+
+<body>
+<div class="x-body" id="app">
+    <form class="layui-form">
+ <div v-if="planDto">
+        <div class="layui-form-item">
+            <label for="depId" class="layui-form-label">
+                <span class="text-color-red">*</span>
+                部门编号
+            </label>
+            <div class="layui-input-inline">
+                <input type="text"  readonly="readonly" id="depId" name="depId" v-model="planDto.depId"  autocomplete="off" required="" lay-verify="required"  class="layui-input">
+            </div>
+            <div class="layui-form-mid layui-word-aux">
+                该内容暂不允许编辑
+            </div>
+        </div>
+
+
+        <div class="layui-form-item">
+            <label for="depName" class="layui-form-label">
+                <span class="text-color-red">*</span>
+                部门名称
+            </label>
+            <div class="layui-input-inline">
+                <input type="text" id="depName" name="depName"  readonly="readonly" v-model="planDto.depName" required="" autocomplete="off" lay-verify="required"  class="layui-input">
+            </div>
+            <div class="layui-form-mid layui-word-aux">
+                该内容暂不允许编辑
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label for="techId" class="layui-form-label">
+                <span class="text-color-red">*</span>
+                申请人编号
+            </label>
+            <div class="layui-input-inline">
+                <input type="text" id="techId" name="techId" v-model="planDto.techId" readonly="readonly" required="" autocomplete="off" lay-verify="required"  class="layui-input">
+            </div>
+            <div class="layui-form-mid layui-word-aux">
+                该内容暂不允许编辑
+            </div>
+        </div>
+
+
+        <div class="layui-form-item">
+            <label for="techName" class="layui-form-label">
+                <span class="text-color-red">*</span>
+                申请人姓名
+            </label>
+            <div class="layui-input-inline">
+                <input type="text" id="techName" name="techName" v-model="planDto.techName"  readonly="readonly" required="" autocomplete="off" lay-verify="required"  class="layui-input">
+            </div>
+            <div class="layui-form-mid layui-word-aux">
+                该内容暂不允许编辑
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label  class="layui-form-label">
+                <span class="text-color-red">*</span>
+                实验室
+            </label>
+            <div class="layui-input-inline">
+                <select name="labId" readonly="readonly">
+                        <option value="planDto.labId" >{{ planDto.labName }}</option>
+                </select>
+            </div>
+            <div class="layui-form-mid layui-word-aux">
+                该内容暂不允许编辑
+            </div>
+        </div>
+
+
+     <div class="layui-form-item">
+         <label for="planId" class="layui-form-label">
+             <span class="text-color-red">*</span>
+             计划编号
+         </label>
+         <div class="layui-input-inline">
+             <input type="text" id="planId" name="planId" v-model="planDto.planId" readonly="readonly" required="" autocomplete="off" lay-verify="required"  class="layui-input">
+         </div>
+         <div class="layui-form-mid layui-word-aux">
+             该内容暂不允许编辑
+         </div>
+     </div>
+
+     <div class="layui-form-item">
+         <label for="planName" class="layui-form-label">
+             <span class="text-color-red">*</span>
+             计划名称
+         </label>
+         <div class="layui-input-inline">
+             <input type="text" id="planName" name="planName" v-model="planDto.planName" required="" autocomplete="off" lay-verify="required"  class="layui-input">
+         </div>
+     </div>
+
+
+     <div class="layui-form-item">
+         <label for="requirement" class="layui-form-label">
+             <span class="text-color-red">*</span>
+             岗位要求
+         </label>
+         <div class="layui-input-inline">
+             <input type="text" id="requirement" name="requirement" v-model="planDto.requirement" required="" autocomplete="off" lay-verify="required"  class="layui-input">
+         </div>
+     </div>
+
+     <div class="layui-form-item">
+         <label for="number" class="layui-form-label">
+             <span class="text-color-red">*</span>
+             招聘人数
+         </label>
+         <div class="layui-input-inline">
+             <input type="text" id="number" name="number" v-model="planDto.number" required="" autocomplete="off" lay-verify="required"  class="layui-input">
+         </div>
+     </div>
+
+
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">
+                <!-- placeholder -->
+            </label>
+            <button type="button" class="layui-btn" lay-filter="update" v-on:click="updatePlan">保存</button>
+            <button type="button" class="layui-btn layui-btn-danger" v-on:click="close" >取消</button>
+        </div>
+ </div>
+    </form>
+</div>
+
+
+
+<script type="text/javascript" src="/js/libs/jquery.min.js">
+</script>
+<script type="text/javascript" src="/js/libs/layui/layui.js">
+</script>
+<script type="text/javascript" src="/js/libs/vue/vue.js">
+</script>
+<script type="text/javascript" src="/js/main.js">
+</script>
+<script type="text/javascript" src="/js/utils.js">
+</script>
+<script type="text/javascript" src="/js/libs/vue/vue-resource.js">
+</script>
+
+<script>
+    var G = {
+    	//editUrl: "./json/user-edit.json"
+    }
+    var APP = new Vue({
+		el: "#app",
+
+		data: {
+            planDto:{
+                planId: "",
+                planName: "",
+                requirement: "",
+                number: "",
+                labId: "",
+                labName: "",
+                depId: "",
+                depName: "",
+                techId: "",
+                techName: "",
+                planSta: ""
+            },
+            contents:""
+		},
+        created: function () {
+            this.getPlanById();
+        },
+        methods: {
+            getPlanById: function () {
+                var Id = location.hash.substring(1) // 去掉 #
+                //发送 get 请求
+                this.$http.get('/plan/queryPlanById',{params:{planId:Id}},{emulateJSON:true}).then(function(result){
+                    if(result.data.status==200){
+                        this.planDto=result.data.data;
+                    }else {
+                        messageError(result.data.message);
+                    }
+                },function(result){
+                    messageError("服务器内部出错!");
+                });
+
+            },
+            updatePlan: function () {
+                //发送 post 请求
+                this.$http.post('/plan/updatePlan',
+                    this.planDto,{emulateJSON:true}).then(function(result){
+                    messageLoading();
+                    if(result.data.status==200){
+                        messageOk(result.data.message);
+                        //关闭弹出层
+                        x_admin_close("reload");
+                    }else {
+                        messageError(result.data.message);
+                    }
+                },function(res){
+                    messageError("服务器内部出错!请重试~");
+                });
+
+
+            },
+            close: function () {
+                //关闭弹出层
+                x_admin_close("app");
+            }
+
+        }// methods end
+
+
+    }); //end Vue
+
+
+
+       /* // 从后端获取数据
+		mounted: function () {
+            var Id = location.hash.substring(1) // 去掉 #
+            messageOk(Id);
+			httpGet(G.editUrl, function (result) {
+				//更新数据模型
+				mergeObject(APP.$data, result.data);
+			});
+
+			this.$nextTick(function () {
+
+				layui.use(['form', 'layer'], function () {
+					$ = layui.jquery;
+					var form = layui.form;
+                    // 重新渲染 form 元素
+					form.render("checkbox");
+					//自定义验证规则
+					form.verify({
+						nikename: function (value) {
+							if (value.length < 5) {
+								return '昵称至少得5个字符啊';
+							}
+						},
+						pass: function (value) {
+
+							var reg = /(.+){6,12}$/;
+							if (value != "" && !reg.test(value)) {
+								return '密码必须是6-12位的字符串';
+							}
+						},
+						repass: function () {
+							if ($('#L_pass').val() != $('#L_repass').val()) {
+								return '两次密码不一致';
+							}
+						}
+					});
+
+					//监听提交
+					form.on('submit(update)', function (data) {
+
+						console.log(data.field);
+						//发异步，把数据提交给后端
+						var handler = top.layer.alert("数据更新成功", {
+							icon: 6
+						}, function () {
+							top.layer.close(handler);
+							//关闭弹出层
+							x_admin_close("render");
+						});
+						return false;
+					});
+
+				});
+			})
+		}
+	});*/
+</script>
+
+</body>
+
+</html>

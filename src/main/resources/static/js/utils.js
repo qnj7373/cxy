@@ -135,10 +135,20 @@ function messageOk(message, callback) {
 	var layer = parent.layer === undefined ? layui.layer : top.layer;
 	layer.msg(message, {icon:1}, callback);
 }
+// 成功提示2
+function messageFine(message, callback) {
+	var layer = parent.layer === undefined ? layui.layer : top.layer;
+	layer.msg(message, {icon:6}, callback);
+}
 // 失败提示
 function messageError(message, callback) {
 	var layer = parent.layer === undefined ? layui.layer : top.layer;
 	layer.msg(message, {icon:2, anim:6}, callback);
+}
+// 缺乏条件提示提示
+function messagefail(message, callback) {
+	var layer = parent.layer === undefined ? layui.layer : top.layer;
+	layer.msg(message, {icon:5, anim:6}, callback);
 }
 function messageInfo(message, callback) {
 	var layer = parent.layer === undefined ? layui.layer : top.layer;

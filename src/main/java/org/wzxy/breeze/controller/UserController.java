@@ -1,105 +1,148 @@
 package org.wzxy.breeze.controller;
 
-import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.authz.annotation.RequiresPermissions;
-import org.apache.shiro.authz.annotation.RequiresRoles;
-import org.apache.shiro.subject.Subject;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.ModelAndView;
-import org.wzxy.breeze.model.po.menu;
-import org.wzxy.breeze.model.po.role;
-import org.wzxy.breeze.model.po.users;
-import org.wzxy.breeze.model.vo.ResponseCode;
-import org.wzxy.breeze.model.vo.ResponseResult;
-import org.wzxy.breeze.service.IUserService;
-import org.wzxy.breeze.service.Impl.userServiceImpl;
-import org.wzxy.breeze.utils.getOutDistinct;
+import org.wzxy.breeze.BaseStore.UserBase;
+import org.wzxy.breeze.model.dto.UserDto;
+import org.wzxy.breeze.model.vo.loginUser;
+import org.wzxy.breeze.service.Iservice.IClassService;
+import org.wzxy.breeze.service.Iservice.IDepartmentService;
+import org.wzxy.breeze.service.Iservice.IUserService;
+import org.wzxy.breeze.service.serviceImpl.ClassServiceImpl;
+import org.wzxy.breeze.service.serviceImpl.DepartmentServiceImpl;
+import org.wzxy.breeze.service.serviceImpl.UserServiceImpl;
 
-import java.util.ArrayList;
-import java.util.List;
-
-/**
- * @author 覃能健
- * @create 2020-03
- */
 @RestController
-@RequestMapping("/users")
-public class UserController {
-
-    @Autowired
-    private IUserService UserService;
-    private ModelAndView mv = new ModelAndView();
-    private ResponseResult Result = new ResponseResult();
-
-
-    @GetMapping("/getUserByFactor")
-    public List<users> getUserByFactor(users user){
-        user.setUserId(0);
-        mv.addObject("users", UserService.findUserByFactor(user));
-        mv.setViewName("usersList");
-        return UserService.findUserByFactor(user);
-
-    }
-
-    @RequiresRoles("admin")
-    @RequiresPermissions("/medical")
-    @GetMapping("/getAllUser")
-    public List<users> getAllUser(){
-        return UserService.findAllUser();
-
-    }
-
-    @RequiresRoles("admin")
-    @RequiresPermissions("/medical")
-    @GetMapping("/delect")
-    public List<users> delect(){
-        return UserService.delect();
-
-    }
-
-    @GetMapping("/deleteUser")
-    public ModelAndView deleteUser(users user){
-        UserService.deleteUser(user);
-        mv.addObject("users", UserService.findUserByFactor(user));
-        mv.setViewName("usersList");
-        return mv;
-
-    }
-    @RequiresRoles("admin")
-    @RequiresPermissions("/medical")
-    @GetMapping("/getMenu")
-    public ResponseResult getMenu(){
-        Subject subject = SecurityUtils.getSubject();
-        int userId = (int) subject.getPrincipal();
-        users user= new users();
-        user.setUserId(userId);
-        user = UserService.findUserByFactor(user).get(0);
-        List<menu> menus = new ArrayList<menu>();
-        menus.clear();
-        if(user!=null){
-            for (role r:
-                    user.getRoles()) {
-                for (menu m:
-                        r.getMenus()) {
-                    menus.add(m);
-                }
-            }
-        }
-        getOutDistinct getDistinct = new getOutDistinct();
-        menus=getDistinct.distinct(menus);
-        Result.setData(menus);
-        Result.setMessage("获取菜单成功");
-        Result.setStatus(ResponseCode.getOkcode());
-        return Result;
-
-    }
+public class UserController extends UserBase  {
+	 private UserDto userDto;
+	 private loginUser luser=new loginUser();
+	@Autowired
+     private IUserService userService;
+	@Autowired
+     private IDepartmentService DepSer;
+	@Autowired
+     private IClassService ClaSer;
 
 
 
-    public void setUserService(userServiceImpl userService) {
-        UserService = userService;
-    }
+
+	public String login() {
+		try{
+			luser.setUid(userDto.getUserid());
+			luser.setUpwd(userDto.getUpwd());
+			luser=userService.login(luser);
+			return luser.getLoginResult();
+			}catch(Exception e) {
+				e.printStackTrace();
+				return "error";
+			}
+	}
+
+	public String toregister() {
+		try{
+			DepList = DepSer.getAllDep();
+			classDtos=ClaSer.queryAllClass();
+			return "success";
+			}catch(Exception e) {
+				e.printStackTrace();
+				return "error";
+			}
+	}
+
+	public String register() {
+		try{
+			luser=userService.register(userDto);
+			return luser.getRegisterResult();
+			}catch(Exception e) {
+				e.printStackTrace();
+				return "error";
+			}
+	}
+
+////////////////////
+//////////����user��action����
+
+		public String deleteUserById() {
+
+			try{
+				userService.deleteUserById(userDto.getUid());
+				Userpage=userService.UserPaging(userDto.getNowPage(), userDto.getPageSize());
+				return "success";
+				}catch(Exception e) {
+					e.printStackTrace();
+					return "error";
+				}
+		}
+
+
+		public String queryUserById() {
+			try{
+				userDto=userService.queryUserById(userDto.getUid());
+			return "success";
+			}catch(Exception e) {
+				e.printStackTrace();
+				return "error";
+			}
+		}
+
+		public String queryUsersByPage() { //////��ҳ////////
+			try{
+				Userpage=userService.UserPaging(userDto.getNowPage(), userDto.getPageSize());
+				return "success";
+			}catch(Exception e) {
+				e.printStackTrace();
+				return "error";
+			}
+		}
+
+
+		public String updateUser() {
+
+			 try{
+				 userService.updateUser(userDto);
+				 Userpage=userService.UserPaging(userDto.getNowPage(), userDto.getPageSize());
+					return "success";
+					}catch(Exception e) {
+						e.printStackTrace();
+						return "error";
+					}
+			 }
+//////////����user��action����
+
+
+
+	///////////////////////////
+
+	public void setUserService(UserServiceImpl userService) {
+		this.userService = userService;
+	}
+
+	public loginUser getLuser() {
+		return luser;
+	}
+
+	public void setLuser(loginUser luser) {
+		this.luser = luser;
+	}
+
+
+	public UserDto getUserDto() {
+		return userDto;
+	}
+
+	public void setUserDto(UserDto userDto) {
+		this.userDto = userDto;
+	}
+
+
+	public void setDepSer(DepartmentServiceImpl depSer) {
+		DepSer = depSer;
+	}
+
+
+	public void setClaSer(ClassServiceImpl claSer) {
+		ClaSer = claSer;
+	}
+
 }
