@@ -3,16 +3,20 @@ package org.wzxy.breeze.model.po;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.io.Serializable;
+import java.util.List;
 
 @JsonIgnoreProperties(value={"hibernateLazyInitializer","handler","fieldHandler"})
 public class Laboratory implements Serializable {
+
+
  private int labId;
  private String labName;
  private int depId;
  private int techId;
 
-
-
+ private List<Maintenance> maintenances;
+ private List<WorkRecord> workRecords;
+ private List<Plan> plans;
 
 public Laboratory() {
 	super();
@@ -59,5 +63,27 @@ public void setTechId(int techId) {
 }
 
 
+	public List<Maintenance> getMaintenances() {
+		return maintenances;
+	}
 
+	public void setMaintenances(List<Maintenance> maintenances) {
+		this.maintenances = maintenances;
+	}
+
+	public List<WorkRecord> getWorkRecords() {
+		return workRecords;
+	}
+
+	public void setWorkRecords(List<WorkRecord> workRecords) {
+		this.workRecords = workRecords;
+	}
+
+	public List<Plan> getPlans() {
+		return plans;
+	}
+
+	public void setPlans(List<Plan> plans) {
+		this.plans = plans;
+	}
 }

@@ -54,7 +54,7 @@ public interface userMapper {
     public User queryUserById(int id);
 
     @Select("SELECT * FROM user WHERE unum = #{unum} AND utype=#{type}")
-    public User queryUserByUnumAndUtype(int unum, String type);
+    public User queryUserByUnumAndUtype(@Param("unum") int unum, @Param("type") String type);
 
     @Update("UPDATE  user SET uid= #{uid} , unum = #{unum}, upwd = #{upwd}, utype = #{utype}  " +
             " WHERE uid = #{uid}")
@@ -93,7 +93,6 @@ public interface userMapper {
                 }
                 sql.append(" upwd = #{upwd}");
             }
-            System.out.println("第N次  "+sql);
             return  sql.toString();
         }
 

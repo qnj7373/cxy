@@ -15,7 +15,11 @@ import org.springframework.web.servlet.ModelAndView;
 import org.wzxy.breeze.model.po.User;
 import org.wzxy.breeze.model.vo.ResponseCode;
 import org.wzxy.breeze.model.vo.ResponseResult;
-import org.wzxy.breeze.service.IUserService;
+import org.wzxy.breeze.service.Iservice.IUserService;
+import org.wzxy.breeze.utils.getUId;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author 覃能健
@@ -47,9 +51,20 @@ public class LoginController {
             //进行验证，这里可以捕获异常，然后返回相应的信息
             subject.login(upToken);
             subject.getSession().setTimeout(600000L);
-            if(1==1){
-                Result.setUrl("TechnicianIndex");
+            User u = new User();
+            u.setUid(loginUser.getUid());
+            List<User> userByFactor = UserService.findUserByFactor(u);
+            if(userByFactor!=null){
+                u=userByFactor.get(0);
+                if("1".equals(u.getUtype())){
+                    Result.setUrl("TechnicianIndex");
+                }else if ("2".equals(u.getUtype())){
+                    Result.setUrl("InstituteIndex");
+                }else if ("3".equals(u.getUtype())){
+                    Result.setUrl("StudentIndex");
+                }
             }
+
         }catch (AuthenticationException e){
                e.printStackTrace();
             Result.setStatus(ResponseCode.getErrorcode());
@@ -65,40 +80,38 @@ public class LoginController {
         Result.setMessage("登录成功了~欢迎你!");
         return Result;
     }
-/*
-    @PostMapping("/login")
-    public ResponseResult login(users loginUser){
-        System.out.println("第N次"+"登录"+" "+loginUser.getUserId()+" "+loginUser.getPassword());
-        //添加用户认证信息
-        Subject subject = SecurityUtils.getSubject();
-        UsernamePasswordToken upToken = new UsernamePasswordToken(
-               String.valueOf(loginUser.getUserId())  ,
-                loginUser.getPassword()
-        );
+
+
+    @GetMapping("/getPowerSwitch")
+    public ResponseResult getPowerSwitch() {
         try{
-            //进行验证，这里可以捕获异常，然后返回相应的信息
-            subject.login(upToken);
-            subject.getSession().setTimeout(600000L);
-        }catch (AuthenticationException e){
-               e.printStackTrace();
-            Result.setStatus(ResponseCode.getErrorcode());
-            Result.setMessage("账号或密码错误");
-               return Result;
-        }catch (AuthorizationException e){
+
+            Result.setData(UserService.getPowerSwitch(getNum()));
+            Result.setStatus(ResponseCode.getOkcode());
+            Result.setMessage("分页获取计划列表成功！");
+            return Result;
+
+        }catch(Exception e) {
             e.printStackTrace();
             Result.setStatus(ResponseCode.getErrorcode());
-            Result.setMessage("无权限访问");
+            Result.setMessage("服务器出错了！请联系管理员修理~");
             return Result;
         }
-        System.out.println("登录成功le");
-        if(1==1){
-            Result.setUrl("TechnicianIndex");
-        }
-        Result.setStatus(ResponseCode.getOkcode());
-        Result.setMessage("登录成功");
-        return Result;
     }
-*/
+
+
+
+    private int getNum(){
+        User u = new User();
+        u.setUid(getUId.getid());
+        List<User> users = new ArrayList<>();
+        users= UserService.findUserByFactor(u);
+        if (users!=null){
+            return  users.get(0).getUnum();
+        }else{
+            return 0;
+        }
+    }
 
     @RequiresRoles("admin")
     @GetMapping("/testShiro")

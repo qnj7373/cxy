@@ -1,6 +1,8 @@
 package org.wzxy.breeze.controller;
 
 import org.apache.commons.fileupload.disk.DiskFileItem;
+import org.apache.shiro.authz.annotation.Logical;
+import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -49,19 +51,51 @@ public class PersonInfoController extends PersonInfoBase  {
 	private String SourceFlag;
 
 
-	public  String toSign() {
+	@GetMapping("/toSign")
+	@RequiresRoles("assistant")
+	public  ResponseResult toSign(PersonInfoDto pdto) {
 
 		 try{
-			 planDto=planservice.queryPlanById(planId);
-			 PersonDto=PersonSer.queryPersonInfoByStudentId(pInfodto.getStudentId());
-			 return "success";
+			 planDto=planservice.queryPlanById(pdto.getPlanId());
+			 PersonDto=PersonSer.queryPersonInfoByStudentId(getNum());
+			 planDto.setPersonId(PersonDto.getPersonId());
+			 planDto.setPersonName(PersonDto.getPersonName());
+			 Result.setData(planDto);
+			 Result.setStatus(ResponseCode.getOkcode());
+			 Result.setMessage("获取报名所需信息成功！");
+			 return Result;
+
 				}catch(Exception e) {
 					e.printStackTrace();
-					return "error";
+			 Result.setStatus(ResponseCode.getErrorcode());
+			 Result.setMessage("服务器出错了！请联系管理员修理~");
+			 return Result;
 				}
 	}
 
+	@GetMapping("/toAddMain")
+	@RequiresRoles("assistant")
+	public ResponseResult toAddMain() {
+		try{
+			int perId=PersonSer.queryPersonInfoByStudentId(getNum()).getPersonId();
+			//int pid=enlistService.queryEnlistBypersonId(perId).getPlanId();
+			//planDto=planservice.queryPlanById(pid);
+			//LabDto=LabSer.queryLaboratoryById(planDto.getLabId());
+			PersonDto=PersonSer.queryPersonInfoById(perId);
+			Result.setData(PersonDto);
+			Result.setStatus(ResponseCode.getOkcode());
+			Result.setMessage("获取添加维修申请所需信息成功！");
+			return Result;
+		}catch(Exception e) {
+			e.printStackTrace();
+			Result.setStatus(ResponseCode.getErrorcode());
+			Result.setMessage("服务器出错了！请联系管理员修理~");
+			return Result;
+		}
+	}
+
 	@GetMapping("/queryPersonById")
+	@RequiresRoles(value={"assistant","technician"},logical = Logical.OR)
 	public ResponseResult queryPersonById(PersonInfoDto pdto) {
 		try{
 				 int pid=enlistService.queryEnlistBypersonId(pdto.getPersonId()).getPlanId();
@@ -82,6 +116,7 @@ public class PersonInfoController extends PersonInfoBase  {
 	}
 
 	@PostMapping("/techAddPerson")
+	@RequiresRoles("technician")
 	public ResponseResult TechAddPerson( PersonInfoDto person ) {
 
 		//技术员录入助理
@@ -110,28 +145,42 @@ public class PersonInfoController extends PersonInfoBase  {
 	}
 
 
-
-	public String addPerson() {
+@PostMapping("/addPerson")
+	public ResponseResult addPerson(PersonInfoDto person) {
 		 try{
 			 UserDto userDto=new UserDto();
-			 userDto.setUnum(pInfodto.getStudentId());
-			 userDto.setUpwd(pInfodto.getPassword());
-			 userDto.setUtype(utype);
+			 userDto.setUnum(person.getStudentId());
+			 userDto.setUpwd(person.getPassword());
+			 userDto.setUtype(person.getUtype());
 			 luser=userService.register(userDto);
-			 if(luser.getRegisterResult().equals("success")) {
-				 pInfodto.setLabId(0);
-				 pInfodto.setHirSta("未录入");
-				 PersonSer.addPersonInfo(pInfodto,Photofile);
+			 if(("success").equals(luser.getRegisterResult())) {
+				 person.setLabId(0);
+				 person.setHirSta("未录入");
+				 DiskFileItem fi = (DiskFileItem) person.getPfile().getFileItem();
+				 File result = fi.getStoreLocation();
+				 PersonSer.addPersonInfo(person,result);
+				 Result.setData(luser);
+				 Result.setStatus(ResponseCode.getOkcode());
+				 Result.setMessage("注册成功！");
+			 }else if ("noThisOne".equals(luser.getRegisterResult())){
+				 Result.setStatus(ResponseCode.getFailcode());
+				 Result.setMessage("仅本校学生可注册，请检查学号是否正确！");
+			 }else if ("exist".equals(luser.getRegisterResult())){
+				 Result.setStatus(ResponseCode.getFailcode());
+				 Result.setMessage("该学号已注册！");
 			 }
-			return luser.getRegisterResult();
+			 return Result;
 				}catch(Exception e) {
 					e.printStackTrace();
-					return "error";
+			 Result.setStatus(ResponseCode.getErrorcode());
+			 Result.setMessage("服务器出错了！请联系管理员修理~");
+			 return Result;
 				}
 	}
 
 
 	@GetMapping("/queryPerPageBylabIdAndHsta")
+	@RequiresRoles(value={"assistant","technician"},logical = Logical.OR)
 	public ResponseResult queryPerPageBylabIdAndHsta() {
 		//////档案管理分页////////
 		try{
@@ -164,6 +213,7 @@ public class PersonInfoController extends PersonInfoBase  {
 
 
 @GetMapping("/queryPersonPageByPlanId")
+@RequiresRoles(value={"assistant","technician"},logical = Logical.OR)
 	public ResponseResult queryPersonPageByPlanId(PersonInfoDto pdto) {
 	//////录入分页////////
 		try{
@@ -201,6 +251,7 @@ public class PersonInfoController extends PersonInfoBase  {
 
 
 	@GetMapping("/deletePersonById")
+	@RequiresRoles("technician")
 	public ResponseResult deletePersonById(PersonInfoDto pDto) {
 
 		 try{
@@ -222,6 +273,7 @@ public class PersonInfoController extends PersonInfoBase  {
 
 
 	@GetMapping("/getPhotoById")
+	@RequiresRoles(value={"assistant","technician"},logical = Logical.OR)
 	public String getPhotoById(PersonInfoDto pdto,HttpServletResponse response) throws IOException {
 		PersonDto=PersonSer.queryPersonInfoById(pdto.getPersonId());
 		byte[] img = PersonDto.getPhoto();
@@ -241,6 +293,7 @@ public class PersonInfoController extends PersonInfoBase  {
 
 
 	@GetMapping("/personDetails")
+	@RequiresRoles(value={"assistant","technician"},logical = Logical.OR)
 	public ResponseResult PersonDetails(PersonInfoDto pDto) {
 		try{
 			try{
@@ -268,6 +321,7 @@ public class PersonInfoController extends PersonInfoBase  {
 		}
 	}
 
+	@RequiresRoles(value={"technician","institute","assistant"},logical = Logical.OR)
 	private int getNum(){
 		User u = new User();
 		u.setUid(getUId.getid());

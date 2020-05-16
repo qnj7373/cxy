@@ -9,6 +9,7 @@ public class Class implements Serializable {
      private int classId;
      private String className;
      private int depId;
+     private Department department;
 
 
 	public Class() {
@@ -46,4 +47,11 @@ public class Class implements Serializable {
 		this.depId = depId;
 	}
 
+	public Department getDepartment() {
+		return department;
+	}
+
+	public void setDepartment(Department department) {
+		this.department = department;
+	}
 }

@@ -1,6 +1,8 @@
 package org.wzxy.breeze.controller;
 
 
+import org.apache.shiro.authz.annotation.Logical;
+import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -40,6 +42,7 @@ public class PlanController extends PlanBase {
 
 
 	@GetMapping("/toadd")
+	@RequiresRoles("technician")
 	public ResponseResult toadd() {
 		 try{
 			 labDtos.clear();
@@ -61,6 +64,7 @@ public class PlanController extends PlanBase {
 	}
 
 	@PostMapping("addPlan")
+	@RequiresRoles("technician")
 	public ResponseResult addPlan(PlanDto pDto) {
 		 try{
 			 System.out.println(pDto.getTechId()+" hhh "+pDto.getTechName());
@@ -79,6 +83,7 @@ public class PlanController extends PlanBase {
 
 
 @GetMapping("deletePlanById")
+@RequiresRoles("technician")
 	public ResponseResult deletePlanById(PlanDto pDto) {
 
 		 try{
@@ -96,15 +101,10 @@ public class PlanController extends PlanBase {
 	}
 
 @GetMapping("/queryPlanById")
+@RequiresRoles(value={"technician","institute","assistant"},logical = Logical.OR)
 	public ResponseResult queryPlanById(PlanDto pDto) {
 		try{
 			planDto=planservice.queryPlanById(pDto.getPlanId());
-			//labDtos=LabSer.queryLaboratorysBydepId(planDto.getDepId());
-			/* if(SourceFlag.equals("Institute")) {
-		    	 return "Institute";
-		     }else if(SourceFlag.equals("Technician")) {
-		    	 return "Technician";
-		     }*/
 			Result.setData(planDto);
 			Result.setStatus(ResponseCode.getOkcode());
 			Result.setMessage("获取计划成功！");
@@ -118,6 +118,7 @@ public class PlanController extends PlanBase {
 	}
 
 	@GetMapping("/queryPlanPageByTechId")
+	@RequiresRoles("technician")
 	public ResponseResult queryPlanPageByTechId(PlanDto pDto) {
 		try{
 			 PlanDtos=planservice.queryPlanByTechId(getNum());
@@ -126,11 +127,6 @@ public class PlanController extends PlanBase {
 				}else {
 					Planpage=null;
 				}
-			/* if(SourceFlag.equals("profiles")) {
-		    	 return "profiles";
-		     }else if(SourceFlag.equals("sign")) {
-		    	 return "sign";
-		     }*/
 			Result.setData(Planpage);
 			Result.setStatus(ResponseCode.getOkcode());
 			Result.setMessage("获取计划成功！");
@@ -145,6 +141,7 @@ public class PlanController extends PlanBase {
 	}
 
 	@GetMapping("/queryPlanByPage")
+	@RequiresRoles(value={"technician","institute","assistant"},logical = Logical.OR)
 	public ResponseResult queryPlanByPage(PlanDto pDto) {
 		try {
 			PlanDtos = planservice.queryPlanBydepId(TechSer.queryTechById(getNum()).getDepId());
@@ -167,51 +164,59 @@ public class PlanController extends PlanBase {
 
 	}
 
-	public String queryAllPlanByPage() { //////ȫ����ҳ////////
+	@GetMapping("/queryAllPlanByPage")
+	@RequiresRoles("institute")
+	public ResponseResult queryAllPlanByPage(PlanDto pDto) {
 		try{
+			PlanDtos.clear();
              PlanDtos=planservice.queryAllPlan();
 			 if(PlanDtos!=null) {
-				 Planpage=planservice.PlanPaging(PlanDtos, planDto.getNowPage(),planDto.getPageSize());
+				 Planpage=planservice.PlanPaging(PlanDtos, pDto.getNowPage(),pDto.getPageSize());
 				}else {
 					Planpage=null;
 				}
-			 return "success";
+			Result.setData(Planpage);
+			Result.setStatus(ResponseCode.getOkcode());
+			Result.setMessage("分页获取计划列表成功！");
+			return Result;
 
 				}catch(Exception e) {
 					e.printStackTrace();
-					return "error";
+			Result.setStatus(ResponseCode.getErrorcode());
+			Result.setMessage("服务器出错了！请联系管理员修理~");
+			return Result;
 				}
 	}
 
-	public String queryAdoptPlanByPage() { //////��ҳ////////
+	@GetMapping("/queryAdoptPlanByPage")
+	@RequiresRoles(value={"technician","institute","assistant"},logical = Logical.OR)
+	public ResponseResult queryAdoptPlanByPage(PlanDto pDto) {
 		try{
-             PlanDtos=planservice.queryPlanByPlanSta("ͨ��");
-			 /////��ʼֵ����++++++++++++++++++++
+             PlanDtos=planservice.queryPlanByPlanSta("通过");
 			 if(PlanDtos!=null) {
-				 Planpage=planservice.PlanPaging(PlanDtos, planDto.getNowPage(),planDto.getPageSize());
+				 Planpage=planservice.PlanPaging(PlanDtos, pDto.getNowPage(),pDto.getPageSize());
 				}else {
 					Planpage=null;
 				}
-			     return "success";
+			Result.setData(Planpage);
+			Result.setStatus(ResponseCode.getOkcode());
+			Result.setMessage("获取计划列表成功！");
+			return Result;
 
 				}catch(Exception e) {
 					e.printStackTrace();
-					return "error";
+			Result.setStatus(ResponseCode.getErrorcode());
+			Result.setMessage("服务器出错了！请联系管理员修理~");
+			return Result;
 				}
 	}
 
 @PostMapping("/updatePlan")
+@RequiresRoles(value={"technician","institute"},logical = Logical.OR)
 	public ResponseResult updatePlan(PlanDto pDto) {
 
 		try{
 			 planservice.updatePlan(pDto);
-			/* if(SourceFlag.equals("Institute")) {
-				 queryAllPlanByPage();
-		    	 return "Institute";
-		     }else if(SourceFlag.equals("Technician")) {
-		    	// queryPlanByPage(pDto);
-		    	 return "Technician";
-		     }*/
 			Result.setData(null);
 			Result.setStatus(ResponseCode.getOkcode());
 			Result.setMessage("修改计划成功！");
@@ -224,25 +229,30 @@ public class PlanController extends PlanBase {
 				}
 	}
 
-
-	public String examinePlan() {
+@PostMapping("/examinePlan")
+@RequiresRoles("institute")
+	public ResponseResult examinePlan(PlanDto pDto) {
 
 		try{
-			 PlanDto pd=planservice.queryPlanById(planDto.getPlanId());
-			 pd.setPlanSta(planDto.getPlanSta());
+			 PlanDto pd=planservice.queryPlanById(pDto.getPlanId());
+			 pd.setPlanSta(pDto.getPlanSta());
 			 planservice.updatePlan(pd);
-			 queryAllPlanByPage();
-			 /////��ʼֵ����++++++++++++++++++++
-				return "success";
+			Result.setData(null);
+			Result.setStatus(ResponseCode.getOkcode());
+			Result.setMessage("更新审核状态成功！");
+			return Result;
 				}catch(Exception e) {
 					e.printStackTrace();
-					return "error";
+			Result.setStatus(ResponseCode.getErrorcode());
+			Result.setMessage("服务器出错了！请联系管理员修理~");
+			return Result;
 				}
 
 	}
 
 
 @GetMapping("/planDetails")
+@RequiresRoles(value={"technician","institute","assistant"},logical = Logical.OR)
 	public ResponseResult PlanDetails(PlanDto pDto) {
 		try{
 			planDto=planservice.queryPlanById(pDto.getPlanId());
@@ -258,6 +268,9 @@ public class PlanController extends PlanBase {
 			return Result;
 		}
 	}
+
+
+	@RequiresRoles(value={"technician","institute","assistant"},logical = Logical.OR)
 	private int getNum(){
 		User u = new User();
 		u.setUid(getUId.getid());

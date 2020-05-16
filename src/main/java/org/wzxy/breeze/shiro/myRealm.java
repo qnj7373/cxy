@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Lazy;
 import org.wzxy.breeze.model.po.User;
 import org.wzxy.breeze.model.po.menu;
 import org.wzxy.breeze.model.po.role;
-import org.wzxy.breeze.service.IUserService;
+import org.wzxy.breeze.service.Iservice.IUserService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,7 +59,6 @@ public class myRealm extends AuthorizingRealm {
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authenticationToken) throws AuthenticationException {
         if(authenticationToken.getPrincipal()==null){
-            System.out.println("未登录或登录状态已过期，请重新登录");
             return  null;
         }
         String id = authenticationToken.getPrincipal().toString();
@@ -73,7 +72,6 @@ public class myRealm extends AuthorizingRealm {
        // user.setPassword(pwd);
         user.setUid(Integer.parseInt(id));
         user.setUpwd(pwd);
-        System.out.println("认证 "+user.getUid()+"  "+user.getUpwd());
         userList = UserService.findUserByFactor(user);
         if (userList==null){
             //抛出异常

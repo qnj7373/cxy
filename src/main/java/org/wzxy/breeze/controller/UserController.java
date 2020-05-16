@@ -2,9 +2,14 @@ package org.wzxy.breeze.controller;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.wzxy.breeze.BaseStore.UserBase;
 import org.wzxy.breeze.model.dto.UserDto;
+import org.wzxy.breeze.model.vo.ResponseCode;
+import org.wzxy.breeze.model.vo.ResponseResult;
 import org.wzxy.breeze.model.vo.loginUser;
 import org.wzxy.breeze.service.Iservice.IClassService;
 import org.wzxy.breeze.service.Iservice.IDepartmentService;
@@ -14,6 +19,7 @@ import org.wzxy.breeze.service.serviceImpl.DepartmentServiceImpl;
 import org.wzxy.breeze.service.serviceImpl.UserServiceImpl;
 
 @RestController
+@RequestMapping("/user")
 public class UserController extends UserBase  {
 	 private UserDto userDto;
 	 private loginUser luser=new loginUser();
@@ -23,36 +29,32 @@ public class UserController extends UserBase  {
      private IDepartmentService DepSer;
 	@Autowired
      private IClassService ClaSer;
+	 private  ResponseResult Result = new ResponseResult();
 
 
 
-
-	public String login() {
-		try{
-			luser.setUid(userDto.getUserid());
-			luser.setUpwd(userDto.getUpwd());
-			luser=userService.login(luser);
-			return luser.getLoginResult();
-			}catch(Exception e) {
-				e.printStackTrace();
-				return "error";
-			}
-	}
-
-	public String toregister() {
+@GetMapping("/toregister")
+	public ResponseResult toregister() {
 		try{
 			DepList = DepSer.getAllDep();
 			classDtos=ClaSer.queryAllClass();
-			return "success";
+			Result.setData(DepList);
+			Result.setDataBackUp(classDtos);
+			Result.setStatus(ResponseCode.getOkcode());
+			Result.setMessage("获取注册所需信息成功！");
+			return Result;
 			}catch(Exception e) {
 				e.printStackTrace();
-				return "error";
+			Result.setStatus(ResponseCode.getErrorcode());
+			Result.setMessage("服务器出错了！请联系管理员修理~");
+			return Result;
 			}
 	}
 
-	public String register() {
+	@PostMapping("/register")
+	public String register(UserDto uDto) {
 		try{
-			luser=userService.register(userDto);
+			luser=userService.register(uDto);
 			return luser.getRegisterResult();
 			}catch(Exception e) {
 				e.printStackTrace();

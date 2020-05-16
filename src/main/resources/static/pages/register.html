@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>添加数据页面</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta http-equiv="Access-Control-Allow-Origin" content="*">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <link rel="icon" href="favicon.ico">
+    <link rel="stylesheet" href="/assets/css/main.css">
+
+</head>
+
+<body>
+<div class="x-body" id="app">
+    <form  class="layui-form">
+        <div class="layui-form-item">
+            <label for="studentId" class="layui-form-label">
+                <span class="text-color-red">*</span>
+                学号
+            </label>
+            <div class="layui-input-inline">
+                <input type="text" id="studentId" name="studentId" v-model="personDto.studentId"   required="" lay-verify="required" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label for="personName" class="layui-form-label">
+                <span class="text-color-red">*</span>
+                姓名
+            </label>
+            <div class="layui-input-inline">
+                <input   type="text" id="personName" name="personName" v-model="personDto.personName" required="" lay-verify="required" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+
+
+
+        <div class="layui-form-item">
+            <label  class="layui-form-label">
+                <span class="text-color-red">*</span>
+                密码
+            </label>
+            <div class="layui-input-inline">
+                <input   type="password" id="password" name="password" v-model="personDto.password" required="" lay-verify="required" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label for="definepwd" class="layui-form-label">
+                <span class="text-color-red">*</span>
+                确认密码
+            </label>
+            <div class="layui-input-inline">
+                <input   type="password" id="definepwd" name="definepwd" v-model="personDto.definepwd" required="" lay-verify="required" v-on:change="checkPwd($event)" autocomplete="off" class="layui-input">
+            </div>
+            <div v-if="checkFlag=='true'">
+                <span class="text-color-green">两次密码输入相同，可以进行注册</span>
+            </div>
+            <div v-else-if="checkFlag=='false'">
+                <span class="text-color-red">两次密码输入不相同！！！</span>
+            </div>
+
+        </div>
+
+        <div class="layui-form-item">
+            <label for="major" class="layui-form-label">
+                <span class="text-color-red">*</span>
+                专业
+            </label>
+            <div class="layui-input-inline">
+                <input type="text" id="major" name="major" v-model="personDto.major"  lay-verify="required" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label for="depId" class="layui-form-label">
+                <span class="text-color-red">*</span>
+                学院
+            </label>
+            <div class="layui-input-inline">
+                <select id="depId" name="depId"   lay-filter="depId"  lay-verify="required" >
+                     <option placeholder="请选择"></option>
+                    <option v-for="item,index in personDto.DepList" :value="item.depId" v-html="item.depName" ></option>
+                </select>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label for="classId" class="layui-form-label">
+                <span class="text-color-red">*</span>
+                班级
+            </label>
+            <div class="layui-input-inline">
+                <select id="classId" name="classId"   lay-filter="classId"  lay-verify="required" >
+                    <option placeholder="请选择"></option>
+                    <option v-for="item,index in classDtos" :value="item.classId" v-html="item.className" ></option>
+                </select>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label for="grade" class="layui-form-label">
+                <span class="text-color-red">*</span>
+                年级
+            </label>
+            <div class="layui-input-inline">
+                <select  id="grade" name="grade" lay-filter="grade"  lay-verify="required" >
+                    <option placeholder="请选择"></option>
+                    <option value="大一" >大一</option>
+                    <option value="大二" >大二</option>
+                    <option value="大三" >大三</option>
+                    <option value="大四" >大四</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label for="tel" class="layui-form-label">
+                <span class="text-color-red">*</span>
+                手机号
+            </label>
+            <div class="layui-input-inline">
+                <input type="text" id="tel" name="tel" v-model="personDto.tel" required="" lay-verify="required" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label for="email" class="layui-form-label">
+                <span class="text-color-red">*</span>
+                邮箱
+            </label>
+            <div class="layui-input-inline">
+                <input type="text" id="email" name="email" v-model="personDto.email" required="" lay-verify="required" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label for="Photofile" class="layui-form-label">
+                <span class="text-color-red">*</span>
+                照片
+            </label>
+            <div class="layui-input-inline">
+                <!--   -->
+                <input type="file" id="Photofile" name="Photofile" v-on:change="photoFile($event)" lay-verify="required" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+
+
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">
+                <!-- placeholder -->
+            </label>
+            <button  type="button" class="layui-btn"  v-on:click="Register($event)">确认注册</button>
+            <button type="button" class="layui-btn layui-btn-danger " v-on:click="close" >取消注册</button>
+        </div>
+    </form>
+</div>
+
+<script type="text/javascript" src="/js/libs/jquery.min.js "></script>
+<script type="text/javascript" src="/js/libs/layui/layui.js"></script>
+<script type="text/javascript" src="/js/libs/vue/vue.js"></script>
+<script type="text/javascript" src="/js/main.js"></script>
+<script type="text/javascript" src="/js/utils.js"></script>
+<script type="text/javascript" src="/js/libs/vue/vue-resource.js">
+</script>
+
+<script>
+    // 初始化 Vue 组件
+    var APP = new Vue({
+        el: '#app',
+        // 数据
+        data: {
+            personDto:{
+                utype:"3",
+                personId:"",
+                planId:"",
+                studentId:"",
+                labId:"",
+                labName:"",
+                password:"",
+                definepwd:"",
+                personName:"",
+                depId:"",
+                classId:"",
+                major:"",
+                grade:"",
+                tel:"",
+                email:"",
+                DepList:[
+                ]
+            },
+            file: '',
+            checkFlag: '',
+            classDtos:[
+                {
+                    classId:"",
+                    className:""
+                }
+            ],
+            contents:""
+        },
+        created: function () {
+           this.toRegister();
+            initForm();
+        },
+        methods: {
+            checkPwd : function (event) {
+                 let a=this.personDto.password;
+                 let b=this.personDto.definepwd;
+                event.preventDefault();
+                if (a.trim() == b.trim()){
+                    this.checkFlag="true";
+                }else {
+                    this.checkFlag="false";
+                }
+            },
+
+            photoFile : function (event) {
+                this.file = event.target.files[0]; // (利用console.log输出看结构就知道如何处理档案资料)
+            },
+            setGrade: function (val) {
+               this.personDto.grade=val;
+            },
+            setClassId: function (val) {
+               this.personDto.classId=val;
+            },
+            setDepId: function (val) {
+               this.personDto.depId=val;
+            },
+            toRegister: function () {
+                //发送 get 请求
+                this.$http.get('/user/toregister',{emulateJSON:true}).then(function(result){
+                    if(result.data.status==200){
+                        this.personDto.DepList=result.data.data;
+                        this.classDtos=result.data.dataBackUp;
+                    }else {
+                        messageError(result.data.message);
+                    }
+                },function(result){
+                    messageError("服务器内部出错!");
+                });
+
+            },
+            Register: function (event) {
+
+                    if(this.personDto.classId&&this.personDto.depId&&this.personDto.grade){
+                        event.preventDefault();
+                        let person = new FormData();
+                        person.append('utype', this.personDto.utype);
+                        person.append('studentId', this.personDto.studentId);
+                        person.append('password', this.personDto.password);
+                        person.append('personName', this.personDto.personName);
+                        person.append('depId', this.personDto.depId);
+                        person.append('classId', this.personDto.classId);
+                        person.append('major', this.personDto.major);
+                        person.append('grade', this.personDto.grade);
+                        person.append('tel', this.personDto.tel);
+                        person.append('email', this.personDto.email);
+                        if(this.file){
+                            person.append('pfile', this.file);
+                        }
+
+                        //发送 post 请求
+                        this.$http.post('/personInfo/addPerson',
+                            person,{emulateJSON:true}).then(function(result){
+                            messageLoading();
+                            if(result.data.status==200){
+                                messageOk(result.data.message);
+                                let account=result.data.data.uid;
+                                var index = top.layer.confirm("注册成功！请妥善保管好账号，您的账号为: "+account, function () {
+                                    top.layer.close(index);
+                                    x_admin_close("reload");
+                                });
+                                //关闭弹出层
+                            }else {
+                                messageError(result.data.message);
+                            }
+                        },function(res){
+                            messageError("服务器内部出错!请重试~");
+                        });
+                    }else {
+                        messageError("有必填项未选择~");
+                    }
+
+                },
+
+
+            close: function () {
+                //关闭弹出层
+                x_admin_close("app");
+            }
+        },
+
+    });//end vue
+
+    function initForm() {
+            layui.use('form', function () {
+                var form = layui.form;
+                form.render('select');
+
+                form.on('select(grade)',function (data) {
+                    initGrade(data.value);
+                });
+
+                form.on('select(classId)',function (data) {
+                    initClassId(data.value);
+                });
+
+                form.on('select(depId)',function (data) {
+                    initDepId(data.value);
+                });
+            });
+        }
+
+    function initGrade(val) {
+        this.APP.setGrade(val);
+    }
+
+    function initClassId(val) {
+        this.APP.setClassId(val);
+    }
+
+    function initDepId(val) {
+        this.APP.setDepId(val);
+    }
+
+
+</script>
+
+</body>
+
+</html>

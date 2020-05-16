@@ -18,6 +18,9 @@ public class ResponseResult<T> implements Serializable {
     private HashMap<String,T> mapData;
     private int status;
 
+    public ResponseResult() {
+    }
+
     public String getMessage() {
         return message;
     }

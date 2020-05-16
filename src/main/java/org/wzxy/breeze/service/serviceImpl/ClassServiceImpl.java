@@ -1,5 +1,7 @@
 package org.wzxy.breeze.service.serviceImpl;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.wzxy.breeze.BaseStore.ClassBase;
 import org.wzxy.breeze.mapper.classMapper;
@@ -9,6 +11,7 @@ import org.wzxy.breeze.model.vo.Page;
 import org.wzxy.breeze.service.Iservice.IClassService;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -19,20 +22,26 @@ public class ClassServiceImpl extends ClassBase implements IClassService {
 	/////班级的业务逻辑  ========================
 
 	@Override
+	/*@Caching(evict = {
+			@CacheEvict(value = "classZone" , key = "'queryAllClass'"),
+			@CacheEvict(value = "classZone" , key = "'ClaPaging'+#nowPage+','+#pageSize")
+	})*/
+	@CacheEvict(cacheNames = "classZone",allEntries = true)
 	public void addClass(ClassDto classto) {
-		//classdao.addClass(createClass(classto));
 		Class cla= new Class();
 		classdao.addClass(cla);
 
 	}
 
 	@Override
+	@CacheEvict(cacheNames = "classZone",allEntries = true)
 	public void deleteClassById(int classId) {
 		cla=classdao.queryClassById(classId);
 		classdao.deleteClassById(cla);
 	}
 
 	@Override
+	@Cacheable(value = "classZone" , key = "'queryClassById'+#classId")
 	public ClassDto  queryClassById(int classId) {
 		cla=classdao.queryClassById(classId);
 		if(cla!=null) {
@@ -44,6 +53,7 @@ public class ClassServiceImpl extends ClassBase implements IClassService {
 
 
 	@Override
+	@Cacheable(value = "classZone" , key = "'queryAllClass'")
 	public List<ClassDto> queryAllClass() {
 		classDtos.clear();
 		for(Class cla:classdao.getAllClass()) {
@@ -53,6 +63,7 @@ public class ClassServiceImpl extends ClassBase implements IClassService {
 	}
 
 	@Override
+	@Cacheable(value = "classZone" , key = "'queryClassBydepId'+#depId")
 	public List<ClassDto> queryClassBydepId(int depId) {
 		classDtos.clear();
 		if(classdao.getClassBydepId(depId)==null) {
@@ -66,6 +77,7 @@ public class ClassServiceImpl extends ClassBase implements IClassService {
 
 
 	@Override
+	@CacheEvict(cacheNames = "classZone",allEntries = true)
 	public void updateClass(ClassDto classdto) {
 		classdao.updateClass(createClass(classdto));
 
@@ -74,6 +86,7 @@ public class ClassServiceImpl extends ClassBase implements IClassService {
 
 
 	@Override
+	@Cacheable(value = "classZone" , key = "'ClaPaging'+#nowPage+','+#pageSize")
 	public Page<ClassDto> ClaPaging(List<ClassDto> classDtos,int nowPage, int pageSize) {
 		if(pageSize==0) {
 			pageSize=3;
@@ -99,13 +112,13 @@ public class ClassServiceImpl extends ClassBase implements IClassService {
 		}
 		if(classDtos.size()>=pageSize) {   //判断页内数据能否构成满页的if
 			if((nowPage+1)==Cpage.getPageTotalCount()) {              //判断下一页是否是最后一页
-				classDtos=classDtos.subList(errorfix,wsize);
+				classDtos=new ArrayList(classDtos.subList(errorfix,wsize));
 			}else {
-				classDtos=classDtos.subList(errorfix,fixTo);
+				classDtos=new ArrayList(classDtos.subList(errorfix,fixTo));
 			}
 		}//判断页内数据能否构成满页的if
 		else {
-			classDtos=classDtos.subList(errorfix,classDtos.size());
+			classDtos=new ArrayList(classDtos.subList(errorfix,classDtos.size())) ;
 		}
 		Cpage.setDatas(classDtos);
 		return Cpage;

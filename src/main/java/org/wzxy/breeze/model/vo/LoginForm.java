@@ -33,6 +33,10 @@ public class LoginForm implements Serializable {
     private String captcha;
     private String uuid;
 
+
+    public LoginForm() {
+    }
+
     public String getUsername() {
         return username;
     }

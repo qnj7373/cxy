@@ -23,6 +23,13 @@ public interface rolesMapper {
     List<role> findRoleByUserId(int userId);
 
 
+////////给新用户赋值角色
+    @Insert("INSERT INTO user_role (uid,roleId)  " +
+            " VALUES(#{uid},#{roleId})")
+    public void addRoleRelation(@Param("uid") int uid,@Param("roleId") int roleId);
+
+
+
     @Select("SELECT * FROM role WHERE roleId IN (SELECT roleId FROM user_role WHERE uid=#{uid})")
     @Results({
             @Result(id=true,column="roleId",property="roleId"),

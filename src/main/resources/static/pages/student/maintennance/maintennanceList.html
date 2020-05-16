@@ -36,38 +36,37 @@
 	</div>
 
 	<blockquote class="layui-elem-quote layui-elem-quote-sm">
-		助理档案列表
+		<button class="layui-btn layui-btn-sm" onclick="x_open_full('添加维修申请','/pages/student/maintennance/maintennanceAdd.html')">
+			<i class="layui-icon">&#xe654;</i>新增维修申请</button>
 	</blockquote>
 
 	<div class="layui-form table-responsive">
 		<table class="layui-table" id="tableId" lay-filter="tableId">
 			<thead>
 			<tr>
+				<th>编号</th>
+				<th>实验室编号</th>
+				<th>设备编号</th>
+				<th>设备名称</th>
 				<th>助理编号</th>
-				<th>所属实验室编号</th>
-				<th>姓名</th>
-				<th>专业</th>
-				<th>年级</th>
-				<th>电话</th>
-				<th>身份状态</th>
+				<th>助理姓名</th>
 				<th>操作</th>
 			</thead>
 			<tbody>
 			<tr v-for="item in items">
-				<td>{{ item.personId }}</td>
+				<td>{{ item.mainId }}</td>
 				<td>{{ item.labId }}</td>
+				<td>{{ item.equId }}</td>
+				<td>{{ item.equName }}</td>
+				<td>{{ item.personId }}</td>
 				<td>{{ item.personName }}</td>
-				<td>{{ item.major }}</td>
-				<td>{{ item.grade }}</td>
-				<td>{{ item.tel }}</td>
-				<td>{{ item.hirSta }}</td>
 				<td class="td-manage">
-					<button   class="layui-btn layui-btn-default layui-btn-xs"
-							 @click="details(item)">
+					<button class="layui-btn layui-btn-default layui-btn-xs"
+					        @click="Detail(item)">
 						<i class="layui-icon">&#xe60f;</i>
 						详细信息</button>
 					<button class="layui-btn layui-btn-default layui-btn-xs"
-					        @click="profilesEdit(item)">
+					        @click="Edit(item)">
 						<i class="layui-icon">&#xe642;</i>
 						编辑</button>
 					<button class="layui-btn layui-btn-danger layui-btn-xs"  v-on:click="removeMember(item)">
@@ -119,7 +118,7 @@
             searchDepId:""
 		},
         created: function () {
-            this.queryProfilesByPage(0,10);
+            this.queryMaintenPage(0,10);
             this.$nextTick(function () {
                 layui.use(['laypage','form'], function () {
                     var laypage = layui.laypage;
@@ -149,9 +148,9 @@
 		// 逻辑处理方法
 		methods: {
 
-            queryProfilesByPage: function ( nowPage,pageSize ) {
+            queryMaintenPage: function ( nowPage,pageSize ) {
                 //发送 get 请求
-                this.$http.get('/personInfo/queryPerPageBylabIdAndHsta', {
+                this.$http.get('/maintenance/queryMainPageBypersonId', {
                     params: {
                         nowPage: nowPage,
                         pageSize: pageSize
@@ -160,7 +159,7 @@
                     if (result.data.status == 200) {
                         this.items = result.data.data.datas;
                         this.count = result.data.data.dataTotalCount;
-                       // this.searchDepId = result.data.data.commonFlag;
+                        initTable();
                     } else {
                         messageError(result.data.message);
                     }
@@ -170,9 +169,9 @@
 
             },
 
-            delProfile: function (personIdVal) {
+            delMainten: function (val) {
                 //发送 get 请求
-                this.$http.get('/personInfo/deletePersonById', {params: {personId: personIdVal}}, {emulateJSON: true}).then(function (result) {
+                this.$http.get('/maintenance/deleteMaintenById', {params: {mainId: val}}, {emulateJSON: true}).then(function (result) {
                     if (result.data.status == 200) {
                         messageOk(result.data.message);
                         render(G.page, G.pagesize);
@@ -183,14 +182,12 @@
                     messageError("服务器内部出错!");
                 });
             },
-
-
 			//删除一行数据
 			removeMember: function (item) {
 				var that = this;
 				var index = top.layer.confirm('确认要删除吗？', function () {
 					top.layer.close(index);
-                    that.delProfile(item.personId);
+                    that.delMainten(item.mainId);
                 });
 
 			},
@@ -217,16 +214,23 @@
             backIndex: function () {
                 this.queryLabByPage(0, 10);
             },
-            details: function (item) {
-                x_open_full('档案细节','profilesDetails.html?#'+item.personId);
-            },
-			profilesEdit: function (item) {
-				x_open_full('档案信息编辑','profilesEdit.html?#'+item.personId);
+			 Edit: function (item) {
+				x_open_full('维修申请编辑','maintennanceEdit.html?#'+item.mainId);
+			},
+            Detail: function (item) {
+				x_open_full('维修申请信息','maintennanceDetail.html?#'+item.mainId);
 			}
 		},
     }); //end Vue
 
 
+    function initTable() {
+        layui.use(['laypage','form'], function () {
+            var form = layui.form;
+            // 重新渲染 form 元素
+            form.render("checkbox");
+        });
+    }
 
     /**
      * 渲染数据列表
@@ -235,9 +239,9 @@
      */
     function render(page, pagesize) {
         if (page==0&&pagesize==0){
-            this.APP.queryProfilesByPage(0, 10);
+            this.APP.queryMaintenPage(0, 10);
 		}else{
-            this.APP.queryProfilesByPage(page, pagesize);
+            this.APP.queryMaintenPage(page, pagesize);
 		}
     }
 

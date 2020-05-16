@@ -72,6 +72,17 @@ public class RedisConfig extends CachingConfigurerSupport {
         //特殊缓存空间应用不同的配置
         Map<String, RedisCacheConfiguration> map = new HashMap<>();
         map.put("userZone", config.entryTtl(Duration.ofMinutes(30L)));//userZone缓存空间过期时间 30分钟
+        map.put("laboratoryZone", config.entryTtl(Duration.ofMinutes(30L)));//userZone缓存空间过期时间 30分钟
+        map.put("classZone", config.entryTtl(Duration.ofMinutes(30L)));//userZone缓存空间过期时间 30分钟
+        map.put("departmentZone", config.entryTtl(Duration.ofMinutes(30L)));//userZone缓存空间过期时间 30分钟
+        map.put("enlistZone", config.entryTtl(Duration.ofMinutes(30L)));//userZone缓存空间过期时间 30分钟
+        map.put("maintenanceZone", config.entryTtl(Duration.ofMinutes(30L)));//userZone缓存空间过期时间 30分钟
+        map.put("personZone", config.entryTtl(Duration.ofMinutes(30L)));//userZone缓存空间过期时间 30分钟
+        map.put("planZone", config.entryTtl(Duration.ofMinutes(30L)));//userZone缓存空间过期时间 30分钟
+        map.put("technicianZone", config.entryTtl(Duration.ofMinutes(30L)));//userZone缓存空间过期时间 30分钟
+        map.put("workRecordZone", config.entryTtl(Duration.ofMinutes(30L)));//userZone缓存空间过期时间 30分钟
+
+
         map.put("provider2", config.entryTtl(Duration.ofHours(1L)));//provider2缓存空间过期时间 1小时
 
         //使用自定义的缓存配置初始化一个RedisCacheManager

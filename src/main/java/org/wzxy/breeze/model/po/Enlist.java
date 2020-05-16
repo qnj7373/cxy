@@ -16,9 +16,6 @@ public class Enlist implements Serializable {
   private Date appDate;
   private String signSta;
 
-
-
-
 public Enlist() {
 	super();
 	// TODO Auto-generated constructor stub

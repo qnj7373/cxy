@@ -6,6 +6,8 @@ import java.io.Serializable;
 
 @JsonIgnoreProperties(value={"hibernateLazyInitializer","handler","fieldHandler"})
 public class PersonInfo implements Serializable {
+
+
   private int personId;
   private int studentId;
   private String password;

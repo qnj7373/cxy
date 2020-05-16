@@ -15,6 +15,10 @@ import java.io.Serializable;
     private static final int failcode=201;
     private static final int errorcode=-1;
 
+
+    public ResponseCode() {
+    }
+
     public static int getOkcode() {
         return okcode;
     }

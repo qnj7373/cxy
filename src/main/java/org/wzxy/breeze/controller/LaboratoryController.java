@@ -1,5 +1,6 @@
 package org.wzxy.breeze.controller;
 
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,6 +38,7 @@ public class LaboratoryController extends LaboratoryBase {
 
 //////////����Lab��action����
 @GetMapping("/toAddLab")
+@RequiresRoles("technician")
 	public ResponseResult toadd(LaboratoryDto LabDto) {
 		 try{
 			 LabDto.setTechId(getNum());
@@ -59,6 +61,7 @@ public class LaboratoryController extends LaboratoryBase {
 
 
 @PostMapping("/addLab")
+@RequiresRoles("technician")
 public  ResponseResult addLab(LaboratoryDto LabDto) {
 	 try{
 		 LabSer.addLaboratory(LabDto);
@@ -75,6 +78,7 @@ public  ResponseResult addLab(LaboratoryDto LabDto) {
 }
 
 @GetMapping("/deleteLabById")
+@RequiresRoles("technician")
 public ResponseResult deleteLabById(LaboratoryDto LabDto) {
 
 	 try{
@@ -93,7 +97,7 @@ public ResponseResult deleteLabById(LaboratoryDto LabDto) {
 			}
 }
 
-
+@RequiresRoles("technician")
 public String queryLabBydId(LaboratoryDto LabDto) {         //��
 	try{
 		labDtos=LabSer.queryLaboratorysByTechId(LabDto.getTechId());
@@ -110,6 +114,7 @@ public String queryLabBydId(LaboratoryDto LabDto) {         //��
 }
 
 @GetMapping("/queryLabById")
+@RequiresRoles("technician")
 public ResponseResult queryLabById(LaboratoryDto LabDto) {
 	try{
 		LabDto=LabSer.queryLaboratoryById(LabDto.getLabId());
@@ -130,6 +135,7 @@ public ResponseResult queryLabById(LaboratoryDto LabDto) {
 }
 
 @GetMapping("/queryLabByNameAndDep")
+@RequiresRoles("technician")
 public ResponseResult queryLabByLabNameAndDepId(LaboratoryDto LabDto) {
 	try{
 		//###################
@@ -157,6 +163,7 @@ public ResponseResult queryLabByLabNameAndDepId(LaboratoryDto LabDto) {
 
 
 @GetMapping("/queryLabByPage")
+@RequiresRoles("technician")
 public ResponseResult queryLabByPage(LaboratoryDto LabDto) {
 	try{
 		labDtos.clear();
@@ -186,7 +193,7 @@ public ResponseResult queryLabByPage(LaboratoryDto LabDto) {
 	}
 }
 
-@RequiresRoles("admin")
+@RequiresRoles("technician")
 @PostMapping("/updateLab")
 public ResponseResult updateLab(LaboratoryDto LabDto) {
 
@@ -204,7 +211,7 @@ public ResponseResult updateLab(LaboratoryDto LabDto) {
 
 }
 
-
+@RequiresRoles(value={"technician","institute","assistant"},logical = Logical.OR)
 private int getNum(){
 		User u = new User();
 		u.setUid(getUId.getid());

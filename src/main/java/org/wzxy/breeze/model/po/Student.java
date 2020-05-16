@@ -9,6 +9,7 @@ public class Student implements Serializable {
 	private int studentId;
 	private String studentName;
 	private int classId;
+	private Class myclass;
 
 
 	public Student() {
@@ -40,5 +41,11 @@ public class Student implements Serializable {
 		this.classId = classId;
 	}
 
+	public Class getMyclass() {
+		return myclass;
+	}
 
+	public void setMyclass(Class myclass) {
+		this.myclass = myclass;
+	}
 }

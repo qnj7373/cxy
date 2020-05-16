@@ -109,7 +109,10 @@
              计划名称
          </label>
          <div class="layui-input-inline">
-             <input type="text" id="planName" name="planName" v-model="planDto.planName" required="" autocomplete="off" lay-verify="required"  class="layui-input">
+             <input type="text" id="planName" name="planName" readonly="readonly"  v-model="planDto.planName" required="" autocomplete="off" lay-verify="required"  class="layui-input">
+         </div>
+         <div class="layui-form-mid layui-word-aux">
+             该内容暂不允许编辑
          </div>
      </div>
 
@@ -120,8 +123,10 @@
              岗位要求
          </label>
          <div class="layui-input-inline">
-                <textarea style="width:350px;height:150px;" id="requirement" name="requirement"
-                          v-model="planDto.requirement" required="" lay-verify="required" autocomplete="off" ></textarea>
+             <input type="text" id="requirement"  readonly="readonly"  name="requirement" v-model="planDto.requirement" required="" autocomplete="off" lay-verify="required"  class="layui-input">
+         </div>
+         <div class="layui-form-mid layui-word-aux">
+             该内容暂不允许编辑
          </div>
      </div>
 

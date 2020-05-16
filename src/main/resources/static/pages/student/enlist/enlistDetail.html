@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>数据编辑页面</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta http-equiv="Access-Control-Allow-Origin" content="*">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <link rel="icon" href="favicon.ico">
+    <link rel="stylesheet" href="/assets/css/main.css">
+
+</head>
+
+<body>
+<div class="x-body" id="app">
+    <form class="layui-form">
+ <div v-if="enlistDto">
+     <table border="1"  class="layui-table" >
+         <tr>
+             <td width="20" height="20">报名编号：</td>
+             <td width="200" height="20">
+                 {{enlistDto.enlistId}}
+             </td>
+         </tr>
+         <tr>
+             <td>岗位名称：</td>
+             <td >
+                 {{enlistDto.postName}}
+             </td>
+         </tr>
+         <tr>
+             <td>计划：</td>
+             <td >
+                 {{enlistDto.planName}}
+             </td>
+         </tr>
+         <tr>
+             <td>实验室：</td>
+             <td >
+                 {{enlistDto.labName}}
+             </td>
+         </tr>
+         </s:iterator>
+         <tr>
+             <td valign="top">技能描述：</td>
+             <td  height="100">
+                 {{enlistDto.skill}}
+             </td>
+         </tr>
+         <tr>
+             <td valign="top">申请人：</td>
+             <td >
+                 {{enlistDto.personName}}
+             </td>
+         </tr>
+
+         <tr>
+             <td valign="top">报名时间：</td>
+             <td >
+                 {{enlistDto.appDate}}
+             </td>
+         </tr>
+
+         <tr>
+             <td valign="top">报名状态:</td>
+             <td >
+                 {{enlistDto.signSta}}
+             </td>
+         </tr>
+
+     </table>
+
+
+
+        <div class="layui-form-item">
+            <button type="button" class="layui-btn layui-btn-danger" v-on:click="close" >关闭</button>
+        </div>
+ </div>
+    </form>
+</div>
+
+
+
+<script type="text/javascript" src="/js/libs/jquery.min.js">
+</script>
+<script type="text/javascript" src="/js/libs/layui/layui.js">
+</script>
+<script type="text/javascript" src="/js/libs/vue/vue.js">
+</script>
+<script type="text/javascript" src="/js/main.js">
+</script>
+<script type="text/javascript" src="/js/utils.js">
+</script>
+<script type="text/javascript" src="/js/libs/vue/vue-resource.js">
+</script>
+
+<script>
+    var G = {
+    	//editUrl: "./json/user-edit.json"
+    }
+    var APP = new Vue({
+		el: "#app",
+
+		data: {
+            enlistDto:{
+                enlistId:"",
+                postName:"",
+                planName:"",
+                labName:"",
+                skill:"",
+                personName:"",
+                appDate:"",
+                signSta:"",
+            },
+            contents:""
+		},
+        created: function () {
+            this.getRecordById();
+        },
+        methods: {
+            getRecordById: function () {
+                var Id = location.hash.substring(1) // 去掉 #
+                //发送 get 请求
+                this.$http.get('/enlist/EnlistDetails',{params:{enlistId:Id}},{emulateJSON:true}).then(function(result){
+                    if(result.data.status==200){
+                        this.enlistDto=result.data.data;
+                    }else {
+                        messageError(result.data.message);
+                    }
+                },function(result){
+                    messageError("服务器内部出错!");
+                });
+
+            },
+            close: function () {
+                //关闭弹出层
+                x_admin_close("app");
+            }
+
+        }// methods end
+
+
+    }); //end Vue
+</script>
+
+</body>
+
+</html>

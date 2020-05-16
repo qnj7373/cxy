@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+	<meta charset="UTF-8">
+	<title>实验室管理系统首页</title>
+	<meta name="renderer" content="webkit">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<meta http-equiv="Access-Control-Allow-Origin" content="*">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="format-detection" content="telephone=no">
+	<link rel="stylesheet" href="assets/css/main.css">
+</head>
+
+<body>
+<!-- 顶部开始 -->
+<div class="container">
+	<div class="logo">
+		<a href="../index.html">实验室管理系统</a>
+	</div>
+	<div class="left_open">
+		<i title="展开左侧栏" class="iconfont">&#xe699;</i>
+	</div>
+	<ul class="layui-nav right" lay-filter="">
+		<li class="layui-nav-item">
+			<a href="javascript:;">退出系统</a>
+			<dl class="layui-nav-child">
+				<!-- 二级菜单 -->
+				<dd>
+					<a href="/logout">
+						注销登录
+					</a>
+				</dd>
+			</dl>
+		</li>
+		<li class="layui-nav-item to-index">
+			<a href="/">实验室助理前台</a>
+		</li>
+	</ul>
+</div>
+<!-- 顶部结束 -->
+<!-- 中部开始 -->
+<!-- 左侧菜单开始 -->
+<div class="left-nav">
+	<div id="side-nav">
+		<ul id="nav">
+
+			<li>
+				<a href="javascript:;">
+					<i class="iconfont">&#xe6a2;</i>
+					<cite>实验室招聘计划</cite>
+					<i class="iconfont nav_right">&#xe697;</i>
+				</a>
+				<ul class="sub-menu">
+					<li>
+						<a _href="pages/student/plan/planList.html">
+							<i class="iconfont">&#xe6a7;</i>
+							<cite>查看招聘计划</cite>
+						</a>
+					</li>
+				</ul>
+				<ul class="sub-menu">
+					<li>
+						<a _href="pages/student/enlist/enlistOfStu.html">
+							<i class="iconfont">&#xe6a7;</i>
+							<cite>查看报名状态</cite>
+						</a>
+					</li>
+				</ul>
+			</li>
+
+			<li v-if="flag">
+				<a href="javascript:;">
+					<i class="iconfont">&#xe726;</i>
+					<cite>实验室管理</cite>
+					<i class="iconfont nav_right">&#xe697;</i>
+				</a>
+				<ul class="sub-menu">
+					<li>
+						<a _href="pages/student/workRecord/workRecordList.html">
+							<i class="iconfont">&#xe6a7;</i>
+							<cite>工作内容记录</cite>
+						</a>
+					</li>
+
+					<li>
+						<a _href="pages/student/maintennance/maintennanceList.html">
+							<i class="iconfont">&#xe6a7;</i>
+							<cite>设备维修申请</cite>
+						</a>
+					</li>
+				</ul>
+			</li>
+
+
+		</ul>
+	</div>
+</div>
+<!-- <div class="x-slide_left"></div> -->
+<!-- 左侧菜单结束 -->
+<!-- 右侧主体开始 -->
+<div class="page-content">
+	<div class="layui-tab tab" lay-filter="xbs_tab" lay-allowclose="false">
+		<ul class="layui-tab-title">
+			<li class="home" lay-id="0">
+				<i class="layui-icon">&#xe68e;</i>我的桌面
+			</li>
+		</ul>
+		<div class="layui-tab-content">
+			<div class="layui-tab-item layui-show">
+				<p>欢迎你~同学</p>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="page-content-bg"></div>
+<!-- 右侧主体结束 -->
+<!-- 中部结束 -->
+<!-- 底部开始 -->
+<div class="footer">
+	<div class="copyright">软件构件与中间件期末课设作品</div>
+</div>
+<!-- 底部结束 -->
+</body>
+
+<script type="text/javascript" src="/js/libs/jquery.min.js "></script>
+<script type="text/javascript" src="/js/libs/layui/layui.js "></script>
+<script type="text/javascript" src="/js/main.js"></script>
+<script type="text/javascript" src="/js/utils.js"></script>
+<script type="text/javascript" src="/js/libs/vue/vue.js"></script>
+<script type="text/javascript" src="/js/libs/vue/vue-resource.js">
+</script>
+<script>
+    var APP = new Vue({
+        el: '#nav',
+        // 数据
+        data: {
+            flag:"true"
+        },
+        created: function () {
+            this.getPowerSwitch();
+        },
+        methods: {
+            getPowerSwitch: function () {
+                //发送 get 请求
+                this.$http.get('/system/getPowerSwitch', {
+                }, {emulateJSON: true}).then(function (result) {
+                    if (result.data.status == 200) {
+                        this.flag = result.data.data.powerSwitch;
+                    } else {
+                        messageError(result.data.message);
+                    }
+                }, function (result) {
+                    messageError("服务器内部出错!");
+                });
+
+            }
+
+
+
+        }// methods end
+
+    });// vue end
+
+</script>
+</html>

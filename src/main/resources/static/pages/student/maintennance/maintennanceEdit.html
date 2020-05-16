@@ -19,14 +19,14 @@
 <body>
 <div class="x-body" id="app">
     <form class="layui-form">
- <div v-if="planDto">
+ <div v-if="MaintenDto">
         <div class="layui-form-item">
-            <label for="depId" class="layui-form-label">
+            <label for="mainId" class="layui-form-label">
                 <span class="text-color-red">*</span>
-                部门编号
+                申请编号
             </label>
             <div class="layui-input-inline">
-                <input type="text"  readonly="readonly" id="depId" name="depId" v-model="planDto.depId"  autocomplete="off" required="" lay-verify="required"  class="layui-input">
+                <input type="text"  readonly="readonly" id="mainId" name="mainId" v-model="MaintenDto.mainId"  autocomplete="off" required="" lay-verify="required"  class="layui-input">
             </div>
             <div class="layui-form-mid layui-word-aux">
                 该内容暂不允许编辑
@@ -35,12 +35,12 @@
 
 
         <div class="layui-form-item">
-            <label for="depName" class="layui-form-label">
+            <label for="labId" class="layui-form-label">
                 <span class="text-color-red">*</span>
-                部门名称
+                实验室编号
             </label>
             <div class="layui-input-inline">
-                <input type="text" id="depName" name="depName"  readonly="readonly" v-model="planDto.depName" required="" autocomplete="off" lay-verify="required"  class="layui-input">
+                <input type="text" id="labId" name="labId"  readonly="readonly" v-model="MaintenDto.labId" required="" autocomplete="off" lay-verify="required"  class="layui-input">
             </div>
             <div class="layui-form-mid layui-word-aux">
                 该内容暂不允许编辑
@@ -48,12 +48,12 @@
         </div>
 
         <div class="layui-form-item">
-            <label for="techId" class="layui-form-label">
+            <label for="personId" class="layui-form-label">
                 <span class="text-color-red">*</span>
-                申请人编号
+                报修人编号
             </label>
             <div class="layui-input-inline">
-                <input type="text" id="techId" name="techId" v-model="planDto.techId" readonly="readonly" required="" autocomplete="off" lay-verify="required"  class="layui-input">
+                <input type="text" id="personId" name="personId" v-model="MaintenDto.personId" readonly="readonly"  required="" autocomplete="off" lay-verify="required"  class="layui-input">
             </div>
             <div class="layui-form-mid layui-word-aux">
                 该内容暂不允许编辑
@@ -62,12 +62,12 @@
 
 
         <div class="layui-form-item">
-            <label for="techName" class="layui-form-label">
+            <label for="personName" class="layui-form-label">
                 <span class="text-color-red">*</span>
-                申请人姓名
+                报修人姓名
             </label>
             <div class="layui-input-inline">
-                <input type="text" id="techName" name="techName" v-model="planDto.techName"  readonly="readonly" required="" autocomplete="off" lay-verify="required"  class="layui-input">
+                <input type="text" id="personName" name="personName" v-model="MaintenDto.personName"  readonly="readonly" required="" autocomplete="off" lay-verify="required"  class="layui-input">
             </div>
             <div class="layui-form-mid layui-word-aux">
                 该内容暂不允许编辑
@@ -77,61 +77,56 @@
         <div class="layui-form-item">
             <label  class="layui-form-label">
                 <span class="text-color-red">*</span>
-                实验室
+                设备编号
             </label>
             <div class="layui-input-inline">
-                <select name="labId" readonly="readonly">
-                        <option value="planDto.labId" >{{ planDto.labName }}</option>
-                </select>
-            </div>
-            <div class="layui-form-mid layui-word-aux">
-                该内容暂不允许编辑
+                <input type="text" id="equId" name="equId" v-model="MaintenDto.equId"   required="" autocomplete="off" lay-verify="required"  class="layui-input">
             </div>
         </div>
 
 
      <div class="layui-form-item">
-         <label for="planId" class="layui-form-label">
+         <label for="equName" class="layui-form-label">
              <span class="text-color-red">*</span>
-             计划编号
+             设备名称
          </label>
          <div class="layui-input-inline">
-             <input type="text" id="planId" name="planId" v-model="planDto.planId" readonly="readonly" required="" autocomplete="off" lay-verify="required"  class="layui-input">
+             <input type="text" id="equName" name="equName" v-model="MaintenDto.equName"  required="" autocomplete="off" lay-verify="required"  class="layui-input">
+         </div>
+     </div>
+
+     <div class="layui-form-item">
+         <label for="equtype" class="layui-form-label">
+             <span class="text-color-red">*</span>
+             设备型号
+         </label>
+         <div class="layui-input-inline">
+             <input type="text" id="equtype"name="equtype" v-model="MaintenDto.equtype" required="" autocomplete="off" lay-verify="required"  class="layui-input">
+         </div>
+     </div>
+
+
+     <div class="layui-form-item">
+         <label for="description" class="layui-form-label">
+             <span class="text-color-red">*</span>
+             故障现象描述
+         </label>
+         <div class="layui-input-inline">
+                <textarea style="width:350px;height:200px;" id="description" name="description"
+                          v-model="MaintenDto.description" required="" lay-verify="required" autocomplete="off" ></textarea>
+         </div>
+     </div>
+
+     <div class="layui-form-item">
+         <label for="reportDate" class="layui-form-label">
+             <span class="text-color-red">*</span>
+             报修时间
+         </label>
+         <div class="layui-input-inline">
+             <input type="text" id="reportDate" name="reportDate" v-model="MaintenDto.reportDate"  readonly="readonly" required="" autocomplete="off" lay-verify="required"  class="layui-input">
          </div>
          <div class="layui-form-mid layui-word-aux">
              该内容暂不允许编辑
-         </div>
-     </div>
-
-     <div class="layui-form-item">
-         <label for="planName" class="layui-form-label">
-             <span class="text-color-red">*</span>
-             计划名称
-         </label>
-         <div class="layui-input-inline">
-             <input type="text" id="planName" name="planName" v-model="planDto.planName" required="" autocomplete="off" lay-verify="required"  class="layui-input">
-         </div>
-     </div>
-
-
-     <div class="layui-form-item">
-         <label for="requirement" class="layui-form-label">
-             <span class="text-color-red">*</span>
-             岗位要求
-         </label>
-         <div class="layui-input-inline">
-                <textarea style="width:350px;height:150px;" id="requirement" name="requirement"
-                          v-model="planDto.requirement" required="" lay-verify="required" autocomplete="off" ></textarea>
-         </div>
-     </div>
-
-     <div class="layui-form-item">
-         <label for="number" class="layui-form-label">
-             <span class="text-color-red">*</span>
-             招聘人数
-         </label>
-         <div class="layui-input-inline">
-             <input type="text" id="number" name="number" v-model="planDto.number" required="" autocomplete="off" lay-verify="required"  class="layui-input">
          </div>
      </div>
 
@@ -141,7 +136,7 @@
             <label class="layui-form-label">
                 <!-- placeholder -->
             </label>
-            <button type="button" class="layui-btn" lay-filter="update" v-on:click="updatePlan">保存</button>
+            <button type="button" class="layui-btn" lay-filter="update" v-on:click="updateMainten">确认修改</button>
             <button type="button" class="layui-btn layui-btn-danger" v-on:click="close" >取消</button>
         </div>
  </div>
@@ -165,37 +160,34 @@
 
 <script>
     var G = {
-    	//editUrl: "./json/user-edit.json"
     }
     var APP = new Vue({
 		el: "#app",
 
 		data: {
-            planDto:{
-                planId: "",
-                planName: "",
-                requirement: "",
-                number: "",
+            MaintenDto: {
+                mainId:"",
                 labId: "",
-                labName: "",
-                depId: "",
-                depName: "",
-                techId: "",
-                techName: "",
-                planSta: ""
+                personId: "",
+                personName: "",
+                equId: "",
+                equName: "",
+                equtype: "",
+                description: "",
+                reportDate: "",
             },
             contents:""
 		},
         created: function () {
-            this.getPlanById();
+            this.getMaintenById();
         },
         methods: {
-            getPlanById: function () {
+            getMaintenById: function () {
                 var Id = location.hash.substring(1) // 去掉 #
                 //发送 get 请求
-                this.$http.get('/plan/queryPlanById',{params:{planId:Id}},{emulateJSON:true}).then(function(result){
+                this.$http.get('/maintenance/queryMaintenById',{params:{mainId:Id}},{emulateJSON:true}).then(function(result){
                     if(result.data.status==200){
-                        this.planDto=result.data.data;
+                        this.MaintenDto=result.data.data;
                     }else {
                         messageError(result.data.message);
                     }
@@ -204,10 +196,15 @@
                 });
 
             },
-            updatePlan: function () {
+            updateMainten: function () {
+              /*  delete this.WordrecordDto.sysTime;
+                if (this.WordrecordDto.workDates) {
+                }else {
+                    delete this.WordrecordDto.workDates;
+                }*/
                 //发送 post 请求
-                this.$http.post('/plan/updatePlan',
-                    this.planDto,{emulateJSON:true}).then(function(result){
+                this.$http.post('/maintenance/updateMainten',
+                    this.MaintenDto,{emulateJSON:true}).then(function(result){
                     messageLoading();
                     if(result.data.status==200){
                         messageOk(result.data.message);

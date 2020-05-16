@@ -1,9 +1,12 @@
 package org.wzxy.breeze.controller;
 
+import org.apache.shiro.authz.annotation.Logical;
+import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.beans.propertyeditors.CustomDateEditor;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.WebRequest;
 import org.wzxy.breeze.BaseStore.WorkRecordBase;
 import org.wzxy.breeze.model.dto.WorkRecordDto;
 import org.wzxy.breeze.model.po.User;
@@ -18,6 +21,7 @@ import org.wzxy.breeze.service.serviceImpl.PersonInfoServiceImpl;
 import org.wzxy.breeze.service.serviceImpl.WorkRecordServiceImpl;
 import org.wzxy.breeze.utils.getUId;
 
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -38,44 +42,63 @@ public class WorkRecordController extends WorkRecordBase {
 	private WorkRecordDto WordrecordDto=new WorkRecordDto();
 	private  ResponseResult Result = new ResponseResult();
 
-	public String toaddRecord() {
+	@GetMapping("/toaddRecord")
+	@RequiresRoles("assistant")
+	public ResponseResult toaddRecord() {
 
 		 try{
-			 PersonDto=PersonSer.queryPersonInfoById(WordrecordDto.getPersonId());
-				return "success";
+			 PersonDto=PersonSer.queryPersonInfoById(PersonSer.queryPersonInfoByStudentId(getNum()).getPersonId());
+			 Result.setData(PersonDto);
+			 Result.setStatus(ResponseCode.getOkcode());
+			 Result.setMessage("加载所需信息成功！");
+			 return Result;
 				}catch(Exception e) {
 					e.printStackTrace();
-					return "error";
+			 Result.setStatus(ResponseCode.getErrorcode());
+			 Result.setMessage("服务器出错了！请联系管理员修理~");
+			 return Result;
+				}
+	}
+
+@PostMapping("/addWorkRecord")
+@RequiresRoles("assistant")
+	public ResponseResult addWorkRecord(WorkRecordDto wDto) {
+
+		 try{
+			 workSer.addWorkRecord(wDto);
+			 Result.setData(null);
+			 Result.setStatus(ResponseCode.getOkcode());
+			 Result.setMessage("新增工作记录成功！");
+			 return Result;
+				}catch(Exception e) {
+					e.printStackTrace();
+			 Result.setStatus(ResponseCode.getErrorcode());
+			 Result.setMessage("服务器出错了！请联系管理员修理~");
+			 return Result;
 				}
 	}
 
 
-	public String addWorkRecord() {
+	@GetMapping("/deleteWorkRecordById")
+	@RequiresRoles("assistant")
+	public ResponseResult deleteWorkRecordById(WorkRecordDto wDto) {
 
 		 try{
-			 workSer.addWorkRecord(WordrecordDto);
-			 queryWorkRecordPageBypersonId(); //����ȥ
-				return "success";
+			 workSer.deleteWorkRecordById(wDto.getRecordId());
+			 Result.setData(null);
+			 Result.setStatus(ResponseCode.getOkcode());
+			 Result.setMessage("删除工作记录成功！");
+			 return Result;
 				}catch(Exception e) {
 					e.printStackTrace();
-					return "error";
-				}
-	}
-
-
-	public String deleteWorkRecordById() {
-
-		 try{
-			 workSer.deleteWorkRecordById(WordrecordDto.getRecordId());
-			 queryWorkRecordPageBypersonId(); //����ȥ
-				return "success";
-				}catch(Exception e) {
-					e.printStackTrace();
-					return "error";
+			 Result.setStatus(ResponseCode.getErrorcode());
+			 Result.setMessage("服务器出错了！请联系管理员修理~");
+			 return Result;
 				}
 	}
 
 @GetMapping("/queryWorkRecordById")
+@RequiresRoles(value={"assistant","technician"},logical = Logical.OR)
 	public ResponseResult queryWorkRecordById(WorkRecordDto wDto) {
 		try{
 			workDtos.clear();
@@ -92,22 +115,12 @@ public class WorkRecordController extends WorkRecordBase {
 		}
 	}
 
-	/*@GetMapping("/TechqueryRecordBylabIdAndDate")
-	public String TechqueryWorkRecordById() {
-		try{
-			WordrecordDto=workSer.queryWorkRecordById(WordrecordDto.getRecordId());
-			return "success";
-		}catch(Exception e) {
-			e.printStackTrace();
-			return "error";
-		}
-	}*/
 
 
 	@GetMapping("/getRcordsDateBylabId")
+	@RequiresRoles(value={"assistant","technician"},logical = Logical.OR)
 	public ResponseResult getRcordsDateBylabId() {
 			////技术员按日期查看记录的日期导航
-
   		try{
 			workDtos.clear();
 			//techId=getNum()
@@ -129,6 +142,7 @@ public class WorkRecordController extends WorkRecordBase {
 
 
 @GetMapping("/queryRecordBylabIdAndDate")
+@RequiresRoles(value={"assistant","technician"},logical = Logical.OR)
 	public ResponseResult TechqueryRecordBylabIdAndDate(WorkRecordDto WDto) {
 		try{
 			queryWorkRecordBylabId();///workDtos里已经有数据了
@@ -177,7 +191,8 @@ public class WorkRecordController extends WorkRecordBase {
 
 	public String queryWorkRecordBypersonId() {
 		try{
-			workDtos=workSer.queryWorkRecordBypersonId(WordrecordDto.getPersonId());
+			int pId=PersonSer.queryPersonInfoByStudentId(getNum()).getPersonId();
+			workDtos=workSer.queryWorkRecordBypersonId(pId);
 			return "success";
 		}catch(Exception e) {
 			e.printStackTrace();
@@ -185,37 +200,51 @@ public class WorkRecordController extends WorkRecordBase {
 		}
 	}
 
-	public String updateWorkRecord() {
+	@PostMapping("/updateWorkRecord")
+	@RequiresRoles("assistant")
+	public ResponseResult updateWorkRecord(WorkRecordDto WDto) {
 
 		try{
-			workSer.updateWorkRecord(WordrecordDto);
-			 queryWorkRecordPageBypersonId(); //����ȥ
-				return "success";
+			workSer.updateWorkRecord(WDto);
+			Result.setData(null);
+			Result.setStatus(ResponseCode.getOkcode());
+			Result.setMessage("修改工作记录成功！");
+			return Result;
 				}catch(Exception e) {
 					e.printStackTrace();
-					return "error";
+			Result.setStatus(ResponseCode.getErrorcode());
+			Result.setMessage("服务器出错了！请联系管理员修理~");
+			return Result;
 				}
 	}
 
-
-	public String queryWorkRecordPageBypersonId() { //////�����ҳ////////
+@GetMapping("/queryWorkRecordPageBypersonId")
+@RequiresRoles(value={"assistant","technician"},logical = Logical.OR)
+	public ResponseResult queryWorkRecordPageBypersonId(WorkRecordDto WDto) {
+	//////助理分页////////
 		try{
 			queryWorkRecordBypersonId();
-			 /////��ʼֵ����++++++++++++++++++++
+			/////初始值设置++++++++++++++++++++
 			 if(workDtos!=null) {
-				 Wrecordpage=workSer.WorkPaging(workDtos, WordrecordDto.getNowPage(),WordrecordDto.getPageSize());
+				 Wrecordpage=workSer.WorkPaging(workDtos, WDto.getNowPage(),WDto.getPageSize());
 				}else {
 					Wrecordpage=null;
 				}
-			     return "success";
+			Result.setData(Wrecordpage);
+			Result.setStatus(ResponseCode.getOkcode());
+			Result.setMessage("获取工作记录成功！");
+			return Result;
 
 				}catch(Exception e) {
 					e.printStackTrace();
-					return "error";
+			Result.setStatus(ResponseCode.getErrorcode());
+			Result.setMessage("服务器出错了！请联系管理员修理~");
+			return Result;
 				}
 	}
 
 	@GetMapping("/queryWorkRecordPageBylabId")
+	@RequiresRoles(value={"assistant","technician"},logical = Logical.OR)
 	public ResponseResult queryWorkRecordPageBylabId(WorkRecordDto wDto) { //////����Ա�鿴��¼��ҳ////////
 		try{
 
@@ -238,7 +267,7 @@ public class WorkRecordController extends WorkRecordBase {
 			return Result;
 				}
 	}
-
+	@RequiresRoles(value={"assistant","technician","institute"},logical = Logical.OR)
 	private int getNum(){
 		User u = new User();
 		u.setUid(getUId.getid());
@@ -251,6 +280,14 @@ public class WorkRecordController extends WorkRecordBase {
 		}
 	}
 
+
+	//将前台的date数据进行转换
+	@InitBinder
+	public void initBinder(WebDataBinder binder, WebRequest request) {
+		//转换日期 注意这里的转化要和传进来的字符串的格式一直 如2015-9-9 就应该为yyyy-MM-dd
+		DateFormat dateFormat=new SimpleDateFormat("yyyy-MM-dd");
+		binder.registerCustomEditor(Date.class, new CustomDateEditor(dateFormat, true));// CustomDateEditor为自定义日期编辑器
+	}
 
 
 	public WorkRecordDto getWordrecordDto() {
