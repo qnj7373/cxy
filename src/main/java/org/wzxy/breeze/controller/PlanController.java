@@ -3,30 +3,49 @@ package org.wzxy.breeze.controller;
 
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.wzxy.breeze.BaseStore.PlanBase;
+import org.springframework.web.bind.annotation.*;
+import org.wzxy.breeze.mapper.laboratoryMapper;
+import org.wzxy.breeze.mapper.planMapper;
+import org.wzxy.breeze.model.dto.DepartmentDto;
+import org.wzxy.breeze.model.dto.LaboratoryDto;
 import org.wzxy.breeze.model.dto.PlanDto;
-import org.wzxy.breeze.model.po.User;
+import org.wzxy.breeze.model.dto.TechnicianDto;
+import org.wzxy.breeze.model.po.HandleResult;
+import org.wzxy.breeze.model.po.Plan;
+import org.wzxy.breeze.model.vo.Page;
 import org.wzxy.breeze.model.vo.ResponseCode;
 import org.wzxy.breeze.model.vo.ResponseResult;
 import org.wzxy.breeze.service.Iservice.*;
-import org.wzxy.breeze.service.serviceImpl.DepartmentServiceImpl;
-import org.wzxy.breeze.service.serviceImpl.LaboratoryServiceImpl;
-import org.wzxy.breeze.service.serviceImpl.PlanServiceImpl;
-import org.wzxy.breeze.service.serviceImpl.TechnicianServiceImpl;
-import org.wzxy.breeze.utils.getUId;
+import org.wzxy.breeze.service.serviceImpl.*;
 
-import java.util.ArrayList;
+import javax.annotation.Resource;
 import java.util.List;
 
 @RestController
-@RequestMapping("/plan")
-public class PlanController extends PlanBase {
+@RequestMapping("/laboratory")
+public class PlanController  {
 	private String SourceFlag;
+	@Resource
+	private planMapper planDao;
+	@Resource
+	private laboratoryMapper laboratoryDao;
+	@Autowired
+	private Page<PlanDto> Planpage ;
+	private int uNum;
+	@Autowired
+	private Plan plan ;
+	@Autowired
+	private List<PlanDto> PlanDtos ;
+	@Autowired
+	private List<Plan> Planlist ;
+	@Autowired
+	private DepartmentDto depmentDto ;
+	@Autowired
+	private TechnicianDto technicianDto ;
+	@Autowired
+	private List<LaboratoryDto> labDtos ;
 	@Autowired
 	private IDepartmentService DepSer;
 	@Autowired
@@ -38,15 +57,21 @@ public class PlanController extends PlanBase {
 	@Autowired
 	private IUserService UserService;
 	private  PlanDto planDto;
-	private  ResponseResult Result = new ResponseResult();
+	@Autowired
+	private  ResponseResult Result ;
+	@Autowired
+	private HandleResult handle;
+	@Autowired
+	private Logger logger;
+	@Autowired
+	private getStatusService Status;
 
-
-	@GetMapping("/toadd")
+	@GetMapping("/plan/toadd")
 	@RequiresRoles("technician")
 	public ResponseResult toadd() {
 		 try{
 			 labDtos.clear();
-			 technicianDto=TechSer.queryTechById(getNum());
+			 technicianDto=TechSer.queryTechById(Status.getNum());
 			 depmentDto=DepSer.queryDepartmentById(technicianDto.getDepId());
 			 labDtos=LabSer.queryLaboratorysBydepId(depmentDto.getDepId());
 			 depmentDto.setLabList(labDtos);
@@ -56,51 +81,50 @@ public class PlanController extends PlanBase {
 			 Result.setMessage("获取新增计划所需信息成功！");
 			 return Result;
 				}catch(Exception e) {
-					e.printStackTrace();
+					logger.error(e.getMessage());
 			 Result.setStatus(ResponseCode.getErrorcode());
-			 Result.setMessage("服务器出错了！请联系管理员修理~");
+			 Result.setMessage("服务器出错了！请联系管理员处理~");
 			 return Result;
 				}
 	}
 
-	@PostMapping("addPlan")
+	@PostMapping("/plan")
 	@RequiresRoles("technician")
 	public ResponseResult addPlan(PlanDto pDto) {
 		 try{
-			 System.out.println(pDto.getTechId()+" hhh "+pDto.getTechName());
-			 planservice.addPlan(pDto);
+			 handle= planservice.addPlan(pDto);
 			 Result.setData(null);
-			 Result.setStatus(ResponseCode.getOkcode());
-			 Result.setMessage("新增计划成功！");
+			 Result.setStatus(handle.getStatus());
+			 Result.setMessage(handle.getMessage());
 			 return Result;
 				}catch(Exception e) {
-					e.printStackTrace();
+					logger.error(e.getMessage());
 			 Result.setStatus(ResponseCode.getErrorcode());
-			 Result.setMessage("服务器出错了！请联系管理员修理~");
+			 Result.setMessage("服务器出错了！请联系管理员处理~");
 			 return Result;
 				}
 	}
 
 
-@GetMapping("deletePlanById")
+@DeleteMapping("/plan")
 @RequiresRoles("technician")
 	public ResponseResult deletePlanById(PlanDto pDto) {
 
 		 try{
-			 planservice.deletePlanById(pDto.getPlanId());
+			 handle=planservice.deletePlanById(pDto.getPlanId());
 			 Result.setData(null);
-			 Result.setStatus(ResponseCode.getOkcode());
-			 Result.setMessage("删除计划成功！");
+			 Result.setStatus(handle.getStatus());
+			 Result.setMessage(handle.getMessage());
 			 return Result;
 				}catch(Exception e) {
-					e.printStackTrace();
+					logger.error(e.getMessage());
 			 Result.setStatus(ResponseCode.getErrorcode());
-			 Result.setMessage("服务器出错了！请联系管理员修理~");
+			 Result.setMessage("服务器出错了！请联系管理员处理~");
 			 return Result;
 				}
 	}
 
-@GetMapping("/queryPlanById")
+@GetMapping("/plan")
 @RequiresRoles(value={"technician","institute","assistant"},logical = Logical.OR)
 	public ResponseResult queryPlanById(PlanDto pDto) {
 		try{
@@ -110,18 +134,18 @@ public class PlanController extends PlanBase {
 			Result.setMessage("获取计划成功！");
 			return Result;
 		}catch(Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			Result.setStatus(ResponseCode.getErrorcode());
-			Result.setMessage("服务器出错了！请联系管理员修理~");
+			Result.setMessage("服务器出错了！请联系管理员处理~");
 			return Result;
 		}
 	}
 
-	@GetMapping("/queryPlanPageByTechId")
+	@GetMapping("/plan/technician")
 	@RequiresRoles("technician")
 	public ResponseResult queryPlanPageByTechId(PlanDto pDto) {
 		try{
-			 PlanDtos=planservice.queryPlanByTechId(getNum());
+			 PlanDtos=planservice.queryPlanByTechId(Status.getNum());
 			 if(PlanDtos!=null) {
 				 Planpage=planservice.PlanPaging(PlanDtos, pDto.getNowPage(),pDto.getPageSize());
 				}else {
@@ -132,19 +156,19 @@ public class PlanController extends PlanBase {
 			Result.setMessage("获取计划成功！");
 			return Result;
 				}catch(Exception e) {
-					e.printStackTrace();
+					logger.error(e.getMessage());
 			Result.setStatus(ResponseCode.getErrorcode());
-			Result.setMessage("服务器出错了！请联系管理员修理~");
+			Result.setMessage("服务器出错了！请联系管理员处理~");
 			return Result;
 				}
 
 	}
 
-	@GetMapping("/queryPlanByPage")
+	@GetMapping("/plan/page")
 	@RequiresRoles(value={"technician","institute","assistant"},logical = Logical.OR)
 	public ResponseResult queryPlanByPage(PlanDto pDto) {
 		try {
-			PlanDtos = planservice.queryPlanBydepId(TechSer.queryTechById(getNum()).getDepId());
+			PlanDtos = planservice.queryPlanBydepId(TechSer.queryTechById(Status.getNum()).getDepId());
 			/////初始值设置++++++++++++++++++++
 			if (PlanDtos != null) {
 				Planpage = planservice.PlanPaging(PlanDtos, pDto.getNowPage(), pDto.getPageSize());
@@ -156,15 +180,15 @@ public class PlanController extends PlanBase {
 			Result.setMessage("分页获取计划列表成功！");
 			return Result;
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			Result.setStatus(ResponseCode.getErrorcode());
-			Result.setMessage("服务器出错了！请联系管理员修理~");
+			Result.setMessage("服务器出错了！请联系管理员处理~");
 			return Result;
 		}
 
 	}
 
-	@GetMapping("/queryAllPlanByPage")
+	@GetMapping("/plan/all/page")
 	@RequiresRoles("institute")
 	public ResponseResult queryAllPlanByPage(PlanDto pDto) {
 		try{
@@ -181,14 +205,14 @@ public class PlanController extends PlanBase {
 			return Result;
 
 				}catch(Exception e) {
-					e.printStackTrace();
+					logger.error(e.getMessage());
 			Result.setStatus(ResponseCode.getErrorcode());
-			Result.setMessage("服务器出错了！请联系管理员修理~");
+			Result.setMessage("服务器出错了！请联系管理员处理~");
 			return Result;
 				}
 	}
 
-	@GetMapping("/queryAdoptPlanByPage")
+	@GetMapping("/plan/adopt/page")
 	@RequiresRoles(value={"technician","institute","assistant"},logical = Logical.OR)
 	public ResponseResult queryAdoptPlanByPage(PlanDto pDto) {
 		try{
@@ -204,54 +228,54 @@ public class PlanController extends PlanBase {
 			return Result;
 
 				}catch(Exception e) {
-					e.printStackTrace();
+					logger.error(e.getMessage());
 			Result.setStatus(ResponseCode.getErrorcode());
-			Result.setMessage("服务器出错了！请联系管理员修理~");
+			Result.setMessage("服务器出错了！请联系管理员处理~");
 			return Result;
 				}
 	}
 
-@PostMapping("/updatePlan")
+@PutMapping("/plan")
 @RequiresRoles(value={"technician","institute"},logical = Logical.OR)
 	public ResponseResult updatePlan(PlanDto pDto) {
 
 		try{
-			 planservice.updatePlan(pDto);
+			handle= planservice.updatePlan(pDto);
 			Result.setData(null);
-			Result.setStatus(ResponseCode.getOkcode());
-			Result.setMessage("修改计划成功！");
+			Result.setStatus(handle.getStatus());
+			Result.setMessage(handle.getMessage());
 			return Result;
 				}catch(Exception e) {
-					e.printStackTrace();
+					logger.error(e.getMessage());
 			Result.setStatus(ResponseCode.getErrorcode());
-			Result.setMessage("服务器出错了！请联系管理员修理~");
+			Result.setMessage("服务器出错了！请联系管理员处理~");
 			return Result;
 				}
 	}
 
-@PostMapping("/examinePlan")
+@PutMapping("/plan/examine")
 @RequiresRoles("institute")
 	public ResponseResult examinePlan(PlanDto pDto) {
 
 		try{
 			 PlanDto pd=planservice.queryPlanById(pDto.getPlanId());
 			 pd.setPlanSta(pDto.getPlanSta());
-			 planservice.updatePlan(pd);
+			handle= planservice.updatePlan(pd);
 			Result.setData(null);
-			Result.setStatus(ResponseCode.getOkcode());
-			Result.setMessage("更新审核状态成功！");
+			Result.setStatus(handle.getStatus());
+			Result.setMessage(handle.getMessage());
 			return Result;
 				}catch(Exception e) {
-					e.printStackTrace();
+					logger.error(e.getMessage());
 			Result.setStatus(ResponseCode.getErrorcode());
-			Result.setMessage("服务器出错了！请联系管理员修理~");
+			Result.setMessage("服务器出错了！请联系管理员处理~");
 			return Result;
 				}
 
 	}
 
 
-@GetMapping("/planDetails")
+@GetMapping("/plan/details")
 @RequiresRoles(value={"technician","institute","assistant"},logical = Logical.OR)
 	public ResponseResult PlanDetails(PlanDto pDto) {
 		try{
@@ -262,26 +286,14 @@ public class PlanController extends PlanBase {
 			Result.setMessage("获取计划详细信息成功！");
 			return Result;
 		}catch(Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			Result.setStatus(ResponseCode.getErrorcode());
-			Result.setMessage("服务器出错了！请联系管理员修理~");
+			Result.setMessage("服务器出错了！请联系管理员处理~");
 			return Result;
 		}
 	}
 
 
-	@RequiresRoles(value={"technician","institute","assistant"},logical = Logical.OR)
-	private int getNum(){
-		User u = new User();
-		u.setUid(getUId.getid());
-		List<User> users = new ArrayList<>();
-		users= UserService.findUserByFactor(u);
-		if (users!=null){
-			return  users.get(0).getUnum();
-		}else{
-			return 0;
-		}
-	}
 
 	public PlanDto getPlanDto() {
 		return planDto;

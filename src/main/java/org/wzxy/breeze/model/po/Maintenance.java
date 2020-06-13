@@ -1,6 +1,7 @@
 package org.wzxy.breeze.model.po;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.wzxy.breeze.model.dto.MaintenanceDto;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -26,7 +27,21 @@ public Maintenance() {
 }
 
 
+	////////////////
+	public Maintenance (MaintenanceDto Maindto) {
+		if(Maindto!=null) {
+			this.mainId = Maindto.getMainId();
+			this.labId = Maindto.getLabId();
+			this.personId =Maindto.getPersonId();
+			this.equId = Maindto.getEquId();
+			this.equName = Maindto.getEquName();
+			this.equtype = Maindto.getEqutype();
+			this.description = Maindto.getDescription();
+			this.reportTime = Maindto.getReportTime();
+			this.personName = Maindto.getPersonName();
+		}
 
+	}
 
 
 public Maintenance(int mainId, int labId, int personId, int equId, String equName, String equtype, String description,

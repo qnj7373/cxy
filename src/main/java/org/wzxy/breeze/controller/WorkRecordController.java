@@ -2,14 +2,17 @@ package org.wzxy.breeze.controller;
 
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
-import org.wzxy.breeze.BaseStore.WorkRecordBase;
+import org.wzxy.breeze.model.dto.PersonInfoDto;
 import org.wzxy.breeze.model.dto.WorkRecordDto;
-import org.wzxy.breeze.model.po.User;
+import org.wzxy.breeze.model.po.HandleResult;
+import org.wzxy.breeze.model.po.WorkRecord;
+import org.wzxy.breeze.model.vo.Page;
 import org.wzxy.breeze.model.vo.ResponseCode;
 import org.wzxy.breeze.model.vo.ResponseResult;
 import org.wzxy.breeze.service.Iservice.ILaboratoryService;
@@ -19,43 +22,60 @@ import org.wzxy.breeze.service.Iservice.IWorkRecordService;
 import org.wzxy.breeze.service.serviceImpl.LaboratoryServiceImpl;
 import org.wzxy.breeze.service.serviceImpl.PersonInfoServiceImpl;
 import org.wzxy.breeze.service.serviceImpl.WorkRecordServiceImpl;
-import org.wzxy.breeze.utils.getUId;
+import org.wzxy.breeze.service.serviceImpl.getStatusService;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 @RestController
 @RequestMapping("/workRecord")
-public class WorkRecordController extends WorkRecordBase {
+public class WorkRecordController  {
 	@Autowired
 	private ILaboratoryService LabSer;
 	@Autowired
 	private IWorkRecordService workSer;
 	@Autowired
 	private IUserService UserService;
+
+	@Autowired
+	private List<WorkRecord> workList ;
+	@Autowired
+	private Page<WorkRecordDto> Wrecordpage ;
+	@Autowired
+	private WorkRecord workRecord ;
+	@Autowired
+	private List<WorkRecordDto> workDtos ;
+	@Autowired
+	private PersonInfoDto PersonDto ;
 	@Autowired
 	private IPersonInfoService PersonSer;
+	@Autowired
+	private HandleResult handle;
 	private int techId;
-	private WorkRecordDto WordrecordDto=new WorkRecordDto();
-	private  ResponseResult Result = new ResponseResult();
-
+	@Autowired
+	private WorkRecordDto WordrecordDto ;
+	@Autowired
+	private  ResponseResult Result ;
+	@Autowired
+	private Logger logger;
+	@Autowired
+	private getStatusService Status;
 	@GetMapping("/toaddRecord")
 	@RequiresRoles("assistant")
 	public ResponseResult toaddRecord() {
 
 		 try{
-			 PersonDto=PersonSer.queryPersonInfoById(PersonSer.queryPersonInfoByStudentId(getNum()).getPersonId());
+			 PersonDto=PersonSer.queryPersonInfoById(PersonSer.queryPersonInfoByStudentId(Status.getNum()).getPersonId());
 			 Result.setData(PersonDto);
 			 Result.setStatus(ResponseCode.getOkcode());
 			 Result.setMessage("加载所需信息成功！");
 			 return Result;
 				}catch(Exception e) {
-					e.printStackTrace();
+					logger.error(e.getMessage());
 			 Result.setStatus(ResponseCode.getErrorcode());
-			 Result.setMessage("服务器出错了！请联系管理员修理~");
+			 Result.setMessage("服务器出错了！请联系管理员处理~");
 			 return Result;
 				}
 	}
@@ -65,15 +85,15 @@ public class WorkRecordController extends WorkRecordBase {
 	public ResponseResult addWorkRecord(WorkRecordDto wDto) {
 
 		 try{
-			 workSer.addWorkRecord(wDto);
+			 handle=workSer.addWorkRecord(wDto);
 			 Result.setData(null);
-			 Result.setStatus(ResponseCode.getOkcode());
-			 Result.setMessage("新增工作记录成功！");
+			 Result.setStatus(handle.getStatus());
+			 Result.setMessage(handle.getMessage());
 			 return Result;
 				}catch(Exception e) {
-					e.printStackTrace();
+					logger.error(e.getMessage());
 			 Result.setStatus(ResponseCode.getErrorcode());
-			 Result.setMessage("服务器出错了！请联系管理员修理~");
+			 Result.setMessage("服务器出错了！请联系管理员处理~");
 			 return Result;
 				}
 	}
@@ -84,15 +104,15 @@ public class WorkRecordController extends WorkRecordBase {
 	public ResponseResult deleteWorkRecordById(WorkRecordDto wDto) {
 
 		 try{
-			 workSer.deleteWorkRecordById(wDto.getRecordId());
+			 handle=workSer.deleteWorkRecordById(wDto.getRecordId());
 			 Result.setData(null);
-			 Result.setStatus(ResponseCode.getOkcode());
-			 Result.setMessage("删除工作记录成功！");
+			 Result.setStatus(handle.getStatus());
+			 Result.setMessage(handle.getMessage());
 			 return Result;
 				}catch(Exception e) {
-					e.printStackTrace();
+					logger.error(e.getMessage());
 			 Result.setStatus(ResponseCode.getErrorcode());
-			 Result.setMessage("服务器出错了！请联系管理员修理~");
+			 Result.setMessage("服务器出错了！请联系管理员处理~");
 			 return Result;
 				}
 	}
@@ -108,9 +128,9 @@ public class WorkRecordController extends WorkRecordBase {
 			Result.setMessage("加载记录信息成功！");
 			return Result;
 		}catch(Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			Result.setStatus(ResponseCode.getErrorcode());
-			Result.setMessage("服务器出错了！请联系管理员修理~");
+			Result.setMessage("服务器出错了！请联系管理员处理~");
 			return Result;
 		}
 	}
@@ -124,7 +144,7 @@ public class WorkRecordController extends WorkRecordBase {
   		try{
 			workDtos.clear();
 			//techId=getNum()
-  			int lId=LabSer.queryLaboratorysByTechId(getNum()).get(0).getLabId();
+  			int lId=LabSer.queryLaboratorysByTechId(Status.getNum()).get(0).getLabId();
 			WordrecordDto.setLabId(lId);
 			 queryWorkRecordBylabId();
 			workDtos=workSer.getRcordsdate(workDtos);
@@ -133,9 +153,9 @@ public class WorkRecordController extends WorkRecordBase {
 			Result.setMessage("获取导航信息成功！");
 			return Result;
 			}catch(Exception e) {
-				e.printStackTrace();
+				logger.error(e.getMessage());
 			Result.setStatus(ResponseCode.getErrorcode());
-			Result.setMessage("服务器出错了！请联系管理员修理~");
+			Result.setMessage("服务器出错了！请联系管理员处理~");
 			return Result;
 			}
   	}
@@ -169,9 +189,9 @@ public class WorkRecordController extends WorkRecordBase {
 				}
 			return Result;
 		}catch(Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			Result.setStatus(ResponseCode.getErrorcode());
-			Result.setMessage("服务器出错了！请联系管理员修理~");
+			Result.setMessage("服务器出错了！请联系管理员处理~");
 			return Result;
 		}
 	}
@@ -180,22 +200,22 @@ public class WorkRecordController extends WorkRecordBase {
 	public String queryWorkRecordBylabId() {
 		try{
 			workDtos.clear();
-			int lId=LabSer.queryLaboratorysByTechId(getNum()).get(0).getLabId();
+			int lId=LabSer.queryLaboratorysByTechId(Status.getNum()).get(0).getLabId();
 			workDtos=workSer.queryWorkRecordBylabId(lId);
 			return "success";
 		}catch(Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			return "error";
 		}
 	}
 
 	public String queryWorkRecordBypersonId() {
 		try{
-			int pId=PersonSer.queryPersonInfoByStudentId(getNum()).getPersonId();
+			int pId=PersonSer.queryPersonInfoByStudentId(Status.getNum()).getPersonId();
 			workDtos=workSer.queryWorkRecordBypersonId(pId);
 			return "success";
 		}catch(Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			return "error";
 		}
 	}
@@ -205,15 +225,15 @@ public class WorkRecordController extends WorkRecordBase {
 	public ResponseResult updateWorkRecord(WorkRecordDto WDto) {
 
 		try{
-			workSer.updateWorkRecord(WDto);
+			handle=workSer.updateWorkRecord(WDto);
 			Result.setData(null);
-			Result.setStatus(ResponseCode.getOkcode());
-			Result.setMessage("修改工作记录成功！");
+			Result.setStatus(handle.getStatus());
+			Result.setMessage(handle.getMessage());
 			return Result;
 				}catch(Exception e) {
-					e.printStackTrace();
+					logger.error(e.getMessage());
 			Result.setStatus(ResponseCode.getErrorcode());
-			Result.setMessage("服务器出错了！请联系管理员修理~");
+			Result.setMessage("服务器出错了！请联系管理员处理~");
 			return Result;
 				}
 	}
@@ -236,9 +256,9 @@ public class WorkRecordController extends WorkRecordBase {
 			return Result;
 
 				}catch(Exception e) {
-					e.printStackTrace();
+					logger.error(e.getMessage());
 			Result.setStatus(ResponseCode.getErrorcode());
-			Result.setMessage("服务器出错了！请联系管理员修理~");
+			Result.setMessage("服务器出错了！请联系管理员处理~");
 			return Result;
 				}
 	}
@@ -261,24 +281,13 @@ public class WorkRecordController extends WorkRecordBase {
 			return Result;
 
 				}catch(Exception e) {
-					e.printStackTrace();
+					logger.error(e.getMessage());
 			Result.setStatus(ResponseCode.getErrorcode());
-			Result.setMessage("服务器出错了！请联系管理员修理~");
+			Result.setMessage("服务器出错了！请联系管理员处理~");
 			return Result;
 				}
 	}
-	@RequiresRoles(value={"assistant","technician","institute"},logical = Logical.OR)
-	private int getNum(){
-		User u = new User();
-		u.setUid(getUId.getid());
-		List<User> users = new ArrayList<>();
-		users= UserService.findUserByFactor(u);
-		if (users!=null){
-			return  users.get(0).getUnum();
-		}else{
-			return 0;
-		}
-	}
+
 
 
 	//将前台的date数据进行转换

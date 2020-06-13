@@ -1,7 +1,11 @@
 package org.wzxy.breeze.model.po;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.wzxy.breeze.model.dto.PersonInfoDto;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.Serializable;
 
 @JsonIgnoreProperties(value={"hibernateLazyInitializer","handler","fieldHandler"})
@@ -28,9 +32,49 @@ public PersonInfo() {
 	super();
 	// TODO Auto-generated constructor stub
 }
+	public PersonInfo(PersonInfoDto personDto, File Pfile) throws IOException {
+
+		if(personDto!=null) {
+			this.personId = personDto.getPersonId();
+			this.studentId =personDto.getStudentId();
+			this.password = personDto.getPassword();
+			this.personName = personDto.getPersonName();
+			this.major = personDto.getMajor();
+			this.depId = personDto.getDepId();
+			this.classId = personDto.getClassId();
+			this.grade = personDto.getGrade();
+			this.tel = personDto.getTel();
+			this.email = personDto.getEmail();
+			this.labId = personDto.getLabId();
+			this.hirSta = personDto.getHirSta();
+			if(Pfile!=null){
+				FileInputStream file=new FileInputStream(Pfile);
+				byte[] buffer=new byte[file.available()];
+				file.read(buffer);
+				this.photo=buffer;
+			}
+		}
+
+	}
 
 
-public int getPersonId() {
+	public PersonInfo(int personId, int studentId, String password, String personName, String major, int depId, int classId, String grade, String tel, String email, byte[] photo, int labId, String hirSta) {
+		this.personId = personId;
+		this.studentId = studentId;
+		this.password = password;
+		this.personName = personName;
+		this.major = major;
+		this.depId = depId;
+		this.classId = classId;
+		this.grade = grade;
+		this.tel = tel;
+		this.email = email;
+		this.photo = photo;
+		this.labId = labId;
+		this.hirSta = hirSta;
+	}
+
+	public int getPersonId() {
 	return personId;
 }
 public void setPersonId(int personId) {

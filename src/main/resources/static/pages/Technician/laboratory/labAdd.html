@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>添加数据页面</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta http-equiv="Access-Control-Allow-Origin" content="*">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <link rel="icon" href="favicon.ico">
+    <link rel="stylesheet" href="/assets/css/main.css">
+
+</head>
+
+<body>
+<div class="x-body" id="app">
+    <form  class="layui-form">
+        <div class="layui-form-item">
+            <label for="labName" class="layui-form-label">
+                <span class="text-color-red">*</span>
+                实验室名称
+            </label>
+            <div class="layui-input-inline">
+                <input type="text" id="labName" name="labName" v-model="labDto.labName" required="" lay-verify="required" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label  class="layui-form-label">
+                <span class="text-color-red">*</span>
+                选择部门
+            </label>
+            <div class="layui-input-inline" >
+                <select class="layui-input" v-model="labDto.depId" name="depId"  readonly="readonly">
+                    <option v-bind:value="labDto.depId" >{{ labDto.depName }}</option>
+                </select>
+                </div>
+            <div class="layui-form-mid layui-word-aux">
+                默认本部门，不可更改
+            </div>
+        </div>
+
+
+        <div class="layui-form-item">
+            <label  class="layui-form-label">
+                <span class="text-color-red">*</span>
+                技术员
+            </label>
+            <div class="layui-input-inline" >
+                <select name="techId"   lay-filter="techId"  lay-verify="required" >
+                    <option placeholder="请选择"></option>
+                    <option v-for="item,index in labDto.techlist" :value="item.techId" v-html="item.techName" ></option>
+                </select>
+            </div>
+            <div class="layui-form-mid layui-word-aux">
+                只能选择未安排实验室的技术员
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">
+                <!-- placeholder -->
+            </label>
+            <button  type="button" class="layui-btn"  v-on:click="addLab">确认新增</button>
+            <button type="button" class="layui-btn layui-btn-danger " v-on:click="close" >取消</button>
+        </div>
+    </form>
+</div>
+
+<script type="text/javascript" src="/js/libs/jquery.min.js "></script>
+<script type="text/javascript" src="/js/libs/layui/layui.js"></script>
+<script type="text/javascript" src="/js/libs/vue/vue.js"></script>
+<script type="text/javascript" src="/js/main.js"></script>
+<script type="text/javascript" src="/js/utils.js"></script>
+<script type="text/javascript" src="/js/libs/vue/vue-resource.js">
+</script>
+
+<script>
+    // 初始化 Vue 组件
+    var APP = new Vue({
+        el: '#app',
+        // 数据
+        data: {
+            labDto:{
+                labId:"",
+                labName:"",
+                depId:"",
+                depName:"",
+                techId:"",
+                techName:"",
+                techlist: [
+
+                ]
+            },
+            contents:""
+        },
+        created: function () {
+            this.getDepAndTechBydepId();
+            initForm();
+        },
+        methods: {
+            initTechId: function (val) {
+               this.labDto.techId=val;
+            },
+            getDepAndTechBydepId: function () {
+                //发送 get 请求
+                this.$http.get('/laboratory/toAddLab',{emulateJSON:true}).then(function(result){
+                    if(result.data.status==200){
+                        this.labDto=result.data.data;
+                    }else {
+                        messageError(result.data.message);
+                    }
+                },function(result){
+                    messageError("服务器内部出错!");
+                });
+
+            },
+            addLab: function () {
+                //发送 post 请求
+                this.$http.post('/laboratory/addLab',
+                    this.labDto,{emulateJSON:true}).then(function(result){
+                    messageLoading();
+                    if(result.data.status==200){
+                        messageOk(result.data.message);
+                        //关闭弹出层
+                        x_admin_close("reRender");
+                    }else {
+                        messageError(result.data.message);
+                    }
+                },function(res){
+                    messageError("服务器内部出错!请重试~");
+                });
+            },
+
+
+            close: function () {
+                //关闭弹出层
+                x_admin_close("app");
+            }
+        },
+
+    });//end vue
+
+    function initForm() {
+            layui.use('form', function () {
+                var form = layui.form;
+                form.render('select');
+                form.on('select(techId)',function (data) {
+                    rend(data.value);
+                });
+            });
+        }
+    function rend(val) {
+        this.APP.initTechId(val);
+    }
+</script>
+
+</body>
+
+</html>

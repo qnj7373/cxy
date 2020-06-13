@@ -147,6 +147,9 @@
 		methods: {
 
             queryWorkRecordPage: function ( nowPage,pageSize ) {
+                if(nowPage>0){
+                    nowPage=nowPage-1;
+                }
                 //发送 get 请求
                 this.$http.get('/workRecord/queryWorkRecordPageBypersonId', {
                     params: {
@@ -157,7 +160,8 @@
                     if (result.data.status == 200) {
                         this.items = result.data.data.datas;
                         this.count = result.data.data.dataTotalCount;
-                      //  this.searchDepId = result.data.data.commonFlag;
+                        G.page=result.data.data.nowPage;
+                        G.pagesize=result.data.data.pageSize;
                         initTable();
                     } else {
                         messageError(result.data.message);
@@ -173,7 +177,7 @@
                 this.$http.get('/workRecord/deleteWorkRecordById', {params: {recordId: val}}, {emulateJSON: true}).then(function (result) {
                     if (result.data.status == 200) {
                         messageOk(result.data.message);
-                        render(G.page, G.pagesize);
+                        reRender();
                     } else {
                         messageError(result.data.message);
                     }
@@ -243,7 +247,9 @@
             this.APP.queryWorkRecordPage(page, pagesize);
 		}
     }
-
+    function reRender() {
+        this.APP.queryWorkRecordPage(G.page, G.pagesize);
+    }
 </script>
 
 

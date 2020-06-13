@@ -138,9 +138,12 @@
 		methods: {
 
             queryPersonByPage: function ( nowPage,pageSize ) {
+                if(nowPage>0){
+                    nowPage=nowPage-1;
+                }
                 var Id = location.hash.substring(1) // 去掉 #
                 //发送 get 请求
-                this.$http.get('/personInfo/queryPersonPageByPlanId', {
+                this.$http.get('/laboratory/person/plan/page', {
                     params: {
                         planId:Id,
                         nowPage: nowPage,
@@ -150,6 +153,8 @@
                     if (result.data.status == 200) {
                         this.items = result.data.data.datas;
                         this.count = result.data.data.dataTotalCount;
+                        G.page=result.data.data.nowPage;
+                        G.pagesize=result.data.data.pageSize;
                         this.searchDepId = result.data.data.commonFlag;
                         initTable();
                     } else {
@@ -225,7 +230,9 @@
             this.APP.queryPersonByPage(page, pagesize);
 		}
     }
-
+    function reRender() {
+        this.APP.queryEnlistNavByPage(G.page, G.pagesize);
+    }
 </script>
 
 

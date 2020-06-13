@@ -1,6 +1,7 @@
 package org.wzxy.breeze.model.po;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.wzxy.breeze.model.dto.EnlistDto;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -21,6 +22,16 @@ public Enlist() {
 	// TODO Auto-generated constructor stub
 }
 
+	public Enlist(EnlistDto enlist) {
+		this.enlistId = enlist.getEnlistId();
+		this.planId = enlist.getPlanId();
+		this.postName =enlist.getPostName();
+		this.skill = enlist.getSkill();
+		this.personId =enlist.getPersonId();
+		this.personName = enlist.getPersonName();
+		this.appDate = enlist.getAppDate();
+		this.signSta = enlist.getSignSta();
+	}
 
 public Enlist(int enlistId, String postName, String personName, String skill, int personId, int planId, Date appDate,
 		String signSta) {

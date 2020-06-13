@@ -65,15 +65,11 @@ public class myRealm extends AuthorizingRealm {
         String pwd = new String((char[]) authenticationToken.getCredentials());
         //User容器
         User user = new User();
-        //users user = new users();
-       // List<users> userList = new ArrayList<>();
         List<User> userList = new ArrayList<>();
-       // user.setUserId(Integer.parseInt(id));
-       // user.setPassword(pwd);
         user.setUid(Integer.parseInt(id));
         user.setUpwd(pwd);
         userList = UserService.findUserByFactor(user);
-        if (userList==null){
+        if (userList.size()==0){
             //抛出异常
             return null;
 

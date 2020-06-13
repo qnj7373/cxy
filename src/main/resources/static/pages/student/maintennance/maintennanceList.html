@@ -149,6 +149,9 @@
 		methods: {
 
             queryMaintenPage: function ( nowPage,pageSize ) {
+                if(nowPage>0){
+                    nowPage=nowPage-1;
+                }
                 //发送 get 请求
                 this.$http.get('/maintenance/queryMainPageBypersonId', {
                     params: {
@@ -159,6 +162,8 @@
                     if (result.data.status == 200) {
                         this.items = result.data.data.datas;
                         this.count = result.data.data.dataTotalCount;
+                        G.page=result.data.data.nowPage;
+                        G.pagesize=result.data.data.pageSize;
                         initTable();
                     } else {
                         messageError(result.data.message);
@@ -174,7 +179,7 @@
                 this.$http.get('/maintenance/deleteMaintenById', {params: {mainId: val}}, {emulateJSON: true}).then(function (result) {
                     if (result.data.status == 200) {
                         messageOk(result.data.message);
-                        render(G.page, G.pagesize);
+                        reRender();
                     } else {
                         messageError(result.data.message);
                     }
@@ -243,6 +248,9 @@
 		}else{
             this.APP.queryMaintenPage(page, pagesize);
 		}
+    }
+    function reRender() {
+        this.APP.queryMaintenPage(G.page, G.pagesize);
     }
 
 </script>

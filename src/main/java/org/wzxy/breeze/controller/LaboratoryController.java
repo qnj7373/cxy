@@ -1,29 +1,50 @@
 package org.wzxy.breeze.controller;
 
-import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.wzxy.breeze.BaseStore.LaboratoryBase;
+import org.wzxy.breeze.model.dto.DepartmentDto;
 import org.wzxy.breeze.model.dto.LaboratoryDto;
-import org.wzxy.breeze.model.po.User;
+import org.wzxy.breeze.model.dto.TechnicianDto;
+import org.wzxy.breeze.model.po.HandleResult;
+import org.wzxy.breeze.model.po.Laboratory;
+import org.wzxy.breeze.model.po.Technician;
+import org.wzxy.breeze.model.vo.Page;
 import org.wzxy.breeze.model.vo.ResponseCode;
 import org.wzxy.breeze.model.vo.ResponseResult;
 import org.wzxy.breeze.service.Iservice.IDepartmentService;
 import org.wzxy.breeze.service.Iservice.ILaboratoryService;
 import org.wzxy.breeze.service.Iservice.ITechnicianService;
 import org.wzxy.breeze.service.Iservice.IUserService;
-import org.wzxy.breeze.utils.getUId;
+import org.wzxy.breeze.service.serviceImpl.getStatusService;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
 @RequestMapping("/laboratory")
-public class LaboratoryController extends LaboratoryBase {
+public class LaboratoryController  {
+	@Autowired
+	private List<Laboratory> labList  ;
+	@Autowired
+	private Page<LaboratoryDto> labpage ;
+	@Autowired
+	private Laboratory Lab ;
+	@Autowired
+	private LaboratoryDto LabDto ;
+	@Autowired
+	private List<LaboratoryDto> labDtos ;
+	@Autowired
+	private List<Laboratory> lablist ;
+	@Autowired
+	private List<Technician> Techlist ;
+	@Autowired
+	private DepartmentDto DepDto;
+	@Autowired
+	private TechnicianDto TechDto;
 	@Autowired
 	private ILaboratoryService LabSer;
 	@Autowired
@@ -32,16 +53,21 @@ public class LaboratoryController extends LaboratoryBase {
 	private ITechnicianService TechSer;
 	@Autowired
 	private IUserService UserService;
-	private  ResponseResult Result = new ResponseResult();
+	@Autowired
+	private  ResponseResult Result  ;
 	private String SourceFlag;
-
-
+	@Autowired
+	private HandleResult handle;
+	@Autowired
+	private Logger logger;
+	@Autowired
+	private getStatusService Status;
 //////////����Lab��action����
 @GetMapping("/toAddLab")
 @RequiresRoles("technician")
 	public ResponseResult toadd(LaboratoryDto LabDto) {
 		 try{
-			 LabDto.setTechId(getNum());
+			 LabDto.setTechId(Status.getNum());
 			 int dId=TechSer.queryTechById(LabDto.getTechId()).getDepId();
 			 DepDto=DepSer.queryDepartmentById(dId);
 			 Techlist=TechSer.getNoLabTechByDepId(dId);
@@ -51,9 +77,9 @@ public class LaboratoryController extends LaboratoryBase {
 			 Result.setMessage("获取实验室信息成功！");
 			 return Result;
 				}catch(Exception e) {
-					e.printStackTrace();
+					logger.error(e.getMessage());
 			 Result.setStatus(ResponseCode.getErrorcode());
-			 Result.setMessage("服务器出错了！请联系管理员修理~");
+			 Result.setMessage("服务器出错了！请联系管理员处理~");
 			 return Result;
 				}
 	}
@@ -64,15 +90,16 @@ public class LaboratoryController extends LaboratoryBase {
 @RequiresRoles("technician")
 public  ResponseResult addLab(LaboratoryDto LabDto) {
 	 try{
-		 LabSer.addLaboratory(LabDto);
+
 		 TechSer.updateworkStaById(LabDto.getTechId(), "1");
-		 Result.setStatus(ResponseCode.getOkcode());
-		 Result.setMessage("添加实验室信息成功！");
+		 handle=LabSer.addLaboratory(LabDto);
+		 Result.setStatus(handle.getStatus());
+		 Result.setMessage(handle.getMessage());
 		 return Result;
 			}catch(Exception e) {
-				e.printStackTrace();
+				logger.error(e.getMessage());
 		 Result.setStatus(ResponseCode.getErrorcode());
-		 Result.setMessage("服务器出错了！请联系管理员修理~");
+		 Result.setMessage("服务器出错了！请联系管理员处理~");
 		 return Result;
 			}
 }
@@ -82,17 +109,16 @@ public  ResponseResult addLab(LaboratoryDto LabDto) {
 public ResponseResult deleteLabById(LaboratoryDto LabDto) {
 
 	 try{
-		 System.out.println("删除  "+ LabDto.getLabId());
 		 int tid=LabSer.queryLaboratoryById(LabDto.getLabId()).getTechId();
-		 LabSer.deleteLaboratoryById(LabDto.getLabId());
 		 TechSer.updateworkStaById(tid, "0");
-		 Result.setStatus(ResponseCode.getOkcode());
-		 Result.setMessage("删除实验室信息成功！");
+		 handle=LabSer.deleteLaboratoryById(LabDto.getLabId());
+		 Result.setStatus(handle.getStatus());
+		 Result.setMessage(handle.getMessage());
 		 return Result;
 			}catch(Exception e) {
-				e.printStackTrace();
+				logger.error(e.getMessage());
 		 Result.setStatus(ResponseCode.getErrorcode());
-		 Result.setMessage("服务器出错了！请联系管理员修理~");
+		 Result.setMessage("服务器出错了！请联系管理员处理~");
 		 return Result;
 			}
 }
@@ -108,7 +134,7 @@ public String queryLabBydId(LaboratoryDto LabDto) {         //��
 			}
 		return "success";
 	}catch(Exception e) {
-		e.printStackTrace();
+		logger.error(e.getMessage());
 		return "error";
 	}
 }
@@ -127,9 +153,9 @@ public ResponseResult queryLabById(LaboratoryDto LabDto) {
 		Result.setMessage("获取实验室信息成功！");
 		return Result;
 	}catch(Exception e) {
-		e.printStackTrace();
+		logger.error(e.getMessage());
 		Result.setStatus(ResponseCode.getErrorcode());
-		Result.setMessage("服务器出错了！请联系管理员修理~");
+		Result.setMessage("服务器出错了！请联系管理员处理~");
 		return Result;
 	}
 }
@@ -154,9 +180,9 @@ public ResponseResult queryLabByLabNameAndDepId(LaboratoryDto LabDto) {
 		}
 
 	}catch(Exception e) {
-		e.printStackTrace();
+		logger.error(e.getMessage());
 		Result.setStatus(ResponseCode.getErrorcode());
-		Result.setMessage("服务器出错了！请联系管理员修理~");
+		Result.setMessage("服务器出错了！请联系管理员处理~");
 		return Result;
 	}
 }
@@ -167,7 +193,7 @@ public ResponseResult queryLabByLabNameAndDepId(LaboratoryDto LabDto) {
 public ResponseResult queryLabByPage(LaboratoryDto LabDto) {
 	try{
 		labDtos.clear();
-		LabDto.setTechId(getNum());
+		LabDto.setTechId(Status.getNum());
 		int did=0;
 		if(LabDto.getTechId()!=0) {
 			 did=TechSer.queryTechById(LabDto.getTechId()).getDepId();
@@ -186,9 +212,9 @@ public ResponseResult queryLabByPage(LaboratoryDto LabDto) {
 		Result.setMessage("获取实验室信息成功！");
 		return Result;
 	}catch(Exception e) {
-		e.printStackTrace();
+		logger.error(e.getMessage());
 		Result.setStatus(ResponseCode.getErrorcode());
-		Result.setMessage("服务器出错了！请联系管理员修理~");
+		Result.setMessage("服务器出错了！请联系管理员处理~");
 		return Result;
 	}
 }
@@ -198,31 +224,18 @@ public ResponseResult queryLabByPage(LaboratoryDto LabDto) {
 public ResponseResult updateLab(LaboratoryDto LabDto) {
 
 	 try{
-		    LabSer.updateLaboratory(LabDto);
-				 Result.setStatus(ResponseCode.getOkcode());
-				 Result.setMessage("修改实验室信息成功！");
-				 return Result;
+		 handle=LabSer.updateLaboratory(LabDto);
+		 Result.setStatus(handle.getStatus());
+		 Result.setMessage(handle.getMessage());
+		 return Result;
 				}catch(Exception e) {
-					e.printStackTrace();
+					logger.error(e.getMessage());
 					 Result.setStatus(ResponseCode.getErrorcode());
-					 Result.setMessage("服务器出错了！请联系管理员修理~");
+					 Result.setMessage("服务器出错了！请联系管理员处理~");
 					 return Result;
 				}
 
 }
-
-@RequiresRoles(value={"technician","institute","assistant"},logical = Logical.OR)
-private int getNum(){
-		User u = new User();
-		u.setUid(getUId.getid());
-		List<User> users = new ArrayList<>();
-		users= UserService.findUserByFactor(u);
-		if (users!=null){
-			return  users.get(0).getUnum();
-		}else{
-			return 0;
-		}
-	}
 
 
 

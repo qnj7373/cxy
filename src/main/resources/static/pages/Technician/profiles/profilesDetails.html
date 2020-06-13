@@ -155,7 +155,7 @@
                 hirSta:"",
                 labDto:{}
             },
-            photoSrc:"/personInfo/getPhotoById?personId=",
+            photoSrc:"/laboratory/person/getPhotoById?personId=",
             contents:""
 		},
         created: function () {
@@ -165,7 +165,7 @@
             getProfilesDetailsById: function () {
                 var Id = location.hash.substring(1) // 去掉 #
                 //发送 get 请求
-                this.$http.get('/personInfo/personDetails',{params:{personId:Id}},{emulateJSON:true}).then(function(result){
+                this.$http.get('/laboratory/person/details',{params:{personId:Id}},{emulateJSON:true}).then(function(result){
                     if(result.data.status==200){
                         this.personDto=result.data.data;
                         this.personDto.labDto=result.data.dataBackUp;

@@ -45,10 +45,13 @@ public interface userMapper {
 //////
 @Insert("INSERT INTO user (uid,unum,upwd,utype) " +
         " VALUES(#{uid},#{unum},#{upwd},#{utype})")
-    public void addUser(User user);
+    public boolean addUser(User user);
 
     @Delete("DELETE * FROM user WHERE uid = #{uid}")
-    public void deleteUserById(User user);
+    public boolean deleteUserById(User user);
+
+    @Select("SELECT IFNULL((SELECT 1 from user WHERE uid = #{id} limit 1),0)")
+    public  int  isExist(int id);
 
     @Select("SELECT * FROM user WHERE uid = #{id}")
     public User queryUserById(int id);
@@ -58,7 +61,7 @@ public interface userMapper {
 
     @Update("UPDATE  user SET uid= #{uid} , unum = #{unum}, upwd = #{upwd}, utype = #{utype}  " +
             " WHERE uid = #{uid}")
-    public void updateUser(User user);
+    public boolean updateUser(User user);
 
     @Select("SELECT COUNT(*) FROM user")
     public int getTotalCount();

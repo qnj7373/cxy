@@ -23,10 +23,12 @@ public interface rolesMapper {
     List<role> findRoleByUserId(int userId);
 
 
+
+
 ////////给新用户赋值角色
     @Insert("INSERT INTO user_role (uid,roleId)  " +
             " VALUES(#{uid},#{roleId})")
-    public void addRoleRelation(@Param("uid") int uid,@Param("roleId") int roleId);
+    public boolean addRoleRelation(@Param("uid") int uid,@Param("roleId") int roleId);
 
 
 

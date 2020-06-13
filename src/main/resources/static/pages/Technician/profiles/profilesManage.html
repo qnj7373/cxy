@@ -150,8 +150,11 @@
 		methods: {
 
             queryProfilesByPage: function ( nowPage,pageSize ) {
+                if(nowPage>0){
+                    nowPage=nowPage-1;
+                }
                 //发送 get 请求
-                this.$http.get('/personInfo/queryPerPageBylabIdAndHsta', {
+                this.$http.get('/laboratory/person/lab/hirsta/page', {
                     params: {
                         nowPage: nowPage,
                         pageSize: pageSize
@@ -160,6 +163,8 @@
                     if (result.data.status == 200) {
                         this.items = result.data.data.datas;
                         this.count = result.data.data.dataTotalCount;
+                        G.page=result.data.data.nowPage;
+                        G.pagesize=result.data.data.pageSize;
                        // this.searchDepId = result.data.data.commonFlag;
                     } else {
                         messageError(result.data.message);
@@ -172,7 +177,7 @@
 
             delProfile: function (personIdVal) {
                 //发送 get 请求
-                this.$http.get('/personInfo/deletePersonById', {params: {personId: personIdVal}}, {emulateJSON: true}).then(function (result) {
+                this.$http.delete('/laboratory/person', {params: {personId: personIdVal}}, {emulateJSON: true}).then(function (result) {
                     if (result.data.status == 200) {
                         messageOk(result.data.message);
                         render(G.page, G.pagesize);
@@ -240,7 +245,9 @@
             this.APP.queryProfilesByPage(page, pagesize);
 		}
     }
-
+    function reRender() {
+        this.APP.queryProfilesByPage(G.page, G.pagesize);
+    }
 </script>
 
 

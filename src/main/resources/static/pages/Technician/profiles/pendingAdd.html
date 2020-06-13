@@ -229,7 +229,7 @@
                 labId:"",
                 labName:""
             },
-            photoSrc:"/personInfo/getPhotoById?personId=",
+            photoSrc:"/laboratory/person/getPhotoById?personId=",
             contents:""
         },
         created: function () {
@@ -246,7 +246,7 @@
             getPersonById: function () {
                 var Id = location.hash.substring(1) // 去掉 #
                 //发送 get 请求
-                this.$http.get('/personInfo/queryPersonById',
+                this.$http.get('/laboratory/person',
                     {params:{personId:Id}},
                     {emulateJSON:true}
                     ).then(function(result){
@@ -287,7 +287,7 @@
                     person.append('pfile', this.file);
                 }
                 //发送 post 请求  /* {emulateJSON:true}*/
-                this.$http.post('/personInfo/techAddPerson',
+                this.$http.post('/laboratory/person/techAddPerson',
                         person
                      ,
                     {
@@ -298,7 +298,7 @@
                     if(result.data.status==200){
                         messageOk(result.data.message);
                         //关闭弹出层
-                        x_admin_close("reload");
+                        x_admin_close("reRender");
                     }else {
                         messageError(result.data.message);
                     }

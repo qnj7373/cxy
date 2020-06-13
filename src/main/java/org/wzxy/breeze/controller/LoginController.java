@@ -6,6 +6,7 @@ import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.authz.AuthorizationException;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.apache.shiro.subject.Subject;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -32,7 +33,8 @@ public class LoginController {
     private IUserService UserService;
     private  ResponseResult Result = new ResponseResult();
     private ModelAndView mv = new ModelAndView();
-
+    @Autowired
+    private Logger logger;
     @GetMapping("/notLogin")
     public ModelAndView notLogin(){
         mv.setViewName("login");
@@ -66,12 +68,12 @@ public class LoginController {
             }
 
         }catch (AuthenticationException e){
-               e.printStackTrace();
+               logger.error(e.getMessage());
             Result.setStatus(ResponseCode.getErrorcode());
             Result.setMessage("账号或密码错误");
                return Result;
         }catch (AuthorizationException e){
-            e.printStackTrace();
+            logger.error(e.getMessage());
             Result.setStatus(ResponseCode.getErrorcode());
             Result.setMessage("无权限访问");
             return Result;
@@ -92,9 +94,9 @@ public class LoginController {
             return Result;
 
         }catch(Exception e) {
-            e.printStackTrace();
+            logger.error(e.getMessage());
             Result.setStatus(ResponseCode.getErrorcode());
-            Result.setMessage("服务器出错了！请联系管理员修理~");
+            Result.setMessage("服务器出错了！请联系管理员处理~");
             return Result;
         }
     }

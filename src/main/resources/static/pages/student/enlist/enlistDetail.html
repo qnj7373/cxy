@@ -126,7 +126,7 @@
             getRecordById: function () {
                 var Id = location.hash.substring(1) // 去掉 #
                 //发送 get 请求
-                this.$http.get('/enlist/EnlistDetails',{params:{enlistId:Id}},{emulateJSON:true}).then(function(result){
+                this.$http.get('/laboratory/enlist/details',{params:{enlistId:Id}},{emulateJSON:true}).then(function(result){
                     if(result.data.status==200){
                         this.enlistDto=result.data.data;
                     }else {

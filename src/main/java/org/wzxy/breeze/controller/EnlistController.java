@@ -2,14 +2,15 @@ package org.wzxy.breeze.controller;
 
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.wzxy.breeze.BaseStore.EnlistBase;
+import org.springframework.web.bind.annotation.*;
 import org.wzxy.breeze.model.dto.EnlistDto;
-import org.wzxy.breeze.model.po.User;
+import org.wzxy.breeze.model.dto.PersonInfoDto;
+import org.wzxy.breeze.model.dto.PlanDto;
+import org.wzxy.breeze.model.po.Enlist;
+import org.wzxy.breeze.model.po.HandleResult;
+import org.wzxy.breeze.model.vo.Page;
 import org.wzxy.breeze.model.vo.ResponseCode;
 import org.wzxy.breeze.model.vo.ResponseResult;
 import org.wzxy.breeze.service.Iservice.IEnlistService;
@@ -19,14 +20,22 @@ import org.wzxy.breeze.service.Iservice.IUserService;
 import org.wzxy.breeze.service.serviceImpl.EnlistServiceImpl;
 import org.wzxy.breeze.service.serviceImpl.PersonInfoServiceImpl;
 import org.wzxy.breeze.service.serviceImpl.PlanServiceImpl;
-import org.wzxy.breeze.utils.getUId;
+import org.wzxy.breeze.service.serviceImpl.getStatusService;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
-@RequestMapping("/enlist")
-public class EnlistController extends EnlistBase {
+@RequestMapping("/laboratory")
+public class EnlistController {
+
+	@Autowired
+	private Page<EnlistDto> Enlistpage ;
+	@Autowired
+	private Enlist enlist ;
+	@Autowired
+	private List<EnlistDto> EnlistDtos ;
+	@Autowired
+	private List<Enlist> Enlists ;
 	@Autowired
 	private IPersonInfoService PersonSer;
 	@Autowired
@@ -34,37 +43,40 @@ public class EnlistController extends EnlistBase {
 	@Autowired
 	private IPlanService planservice;
 	@Autowired
+	private Page<PlanDto> Planpage ;
+	@Autowired
+	private List<PlanDto> PlanDtos ;
+	@Autowired
+	private PersonInfoDto PersonDto ;
+	@Autowired
+	private PlanDto planDto;
+	@Autowired
 	private IUserService UserService;
 	private EnlistDto enlistDto = new EnlistDto();
 	private String SourceFlag;
 	private int studentId;
-	private  ResponseResult Result = new ResponseResult();
+	@Autowired
+	private Logger logger;
+	@Autowired
+	private getStatusService Status;
+	@Autowired
+	private  ResponseResult Result ;
+	@Autowired
+	private HandleResult handle;
 
-
-	@PostMapping("/addEnlist")
+	@PostMapping("/enlist")
 	@RequiresRoles("assistant")
 	public ResponseResult addEnlist(EnlistDto eDto) {
 		 try{
 
-				signResult=enlistService.addEnlist(eDto);
-				if("exist".equals(signResult)){
-					Result.setStatus(ResponseCode.getFailcode());
-					Result.setMessage("报名失败，您已经应聘了其它岗位！！！！");
-				}else  if ("enough".equals(signResult)){
-					Result.setStatus(ResponseCode.getFailcode());
-					Result.setMessage("报名失败，您已经应聘了其它岗位！！！！");
-				}else  if ("fail".equals(signResult)){
-					Result.setStatus(ResponseCode.getFailcode());
-					Result.setMessage("未知原因导致了失败，请重试！！！");
-				}else {
-					Result.setStatus(ResponseCode.getOkcode());
-					Result.setMessage("恭喜你，报名成功！");
-				}
+			    handle=enlistService.addEnlist(eDto);
+					Result.setStatus(handle.getStatus());
+					Result.setMessage(handle.getMessage());
 			 return Result;
 				}catch(Exception e) {
-					e.printStackTrace();
+					logger.error(e.getMessage());
 			 Result.setStatus(ResponseCode.getErrorcode());
-			 Result.setMessage("服务器出错了！请联系管理员修理~");
+			 Result.setMessage("服务器出错了！请联系管理员处理~");
 			 return Result;
 				}
 	}
@@ -75,10 +87,9 @@ public class EnlistController extends EnlistBase {
 
 		 try{
 			 enlistService.deleteEnlistById(enlistDto.getEnlistId());
-			// queryPlanByPage();
 				return "success";
 				}catch(Exception e) {
-					e.printStackTrace();
+					logger.error(e.getMessage());
 					return "error";
 				}
 	}
@@ -89,18 +100,18 @@ public class EnlistController extends EnlistBase {
 			enlistDto=enlistService.queryEnlistById(enlistDto.getEnlistId());
 			return "success";
 		}catch(Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			return "error";
 		}
 	}
 
 
 
-	@GetMapping("/queryEnlistBypersonId")
+	@GetMapping("/enlist/person")
 	@RequiresRoles(value={"assistant","technician"},logical = Logical.OR)
 	public ResponseResult queryEnlistBypersonId() {
 		try{
-			 int pid= PersonSer.queryPersonInfoByStudentId(getNum()).getPersonId();
+			 int pid= PersonSer.queryPersonInfoByStudentId(Status.getNum()).getPersonId();
 			enlistDto=enlistService.queryEnlistBypersonId(pid);
 			EnlistDtos.clear();
 			if(enlistDto!=null) {
@@ -116,29 +127,30 @@ public class EnlistController extends EnlistBase {
 			Result.setMessage("获取报名单成功！");
 			return Result;
 		}catch(Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			Result.setStatus(ResponseCode.getErrorcode());
-			Result.setMessage("服务器出错了！请联系管理员修理~");
+			Result.setMessage("服务器出错了！请联系管理员处理~");
 			return Result;
 		}
 	}
 
-	@PostMapping("/examineEnlist")
+	@PutMapping("/enlist")
 	@RequiresRoles(value={"assistant","technician"},logical = Logical.OR)
 	public ResponseResult examineEnlist(EnlistDto eDto) {
 
 		try{
 			EnlistDto el=enlistService.queryEnlistById(eDto.getEnlistId());
 			 el.setSignSta(eDto.getSignSta());
-			 enlistService.updatePlan(el);
+			handle=enlistService.updatePlan(el);
 			 enlistDto.setPlanId(el.getPlanId());
-			Result.setStatus(ResponseCode.getOkcode());
-			Result.setMessage("更新报名状态成功！");
+			handle=enlistService.addEnlist(eDto);
+			Result.setStatus(handle.getStatus());
+			Result.setMessage(handle.getMessage());
 			return Result;
 				}catch(Exception e) {
-					e.printStackTrace();
+					logger.error(e.getMessage());
 			Result.setStatus(ResponseCode.getErrorcode());
-			Result.setMessage("服务器出错了！请联系管理员修理~");
+			Result.setMessage("服务器出错了！请联系管理员处理~");
 			return Result;
 				}
 
@@ -151,12 +163,12 @@ public class EnlistController extends EnlistBase {
 			enlistService.updatePlan(enlistDto);
 				return "success";
 				}catch(Exception e) {
-					e.printStackTrace();
+					logger.error(e.getMessage());
 					return "error";
 				}
 	}
 
-	@GetMapping("/queryEnlistforplanIdByPage")
+	@GetMapping("/enlist/plan/page")
 	@RequiresRoles(value={"assistant","technician"},logical = Logical.OR)
 	public ResponseResult queryEnlistforplanIdByPage(EnlistDto eDto) { //////��ҳ////////
 		try{
@@ -172,14 +184,14 @@ public class EnlistController extends EnlistBase {
 			return Result;
 
 				}catch(Exception e) {
-					e.printStackTrace();
+					logger.error(e.getMessage());
 			Result.setStatus(ResponseCode.getErrorcode());
-			Result.setMessage("服务器出错了！请联系管理员修理~");
+			Result.setMessage("服务器出错了！请联系管理员处理~");
 			return Result;
 				}
 	}
 
-	@GetMapping("/EnlistDetails")
+	@GetMapping("/enlist/details")
 	@RequiresRoles(value={"assistant","technician"},logical = Logical.OR)
 	public ResponseResult EnlistDetails(EnlistDto eDto) {
 		try{
@@ -194,25 +206,13 @@ public class EnlistController extends EnlistBase {
 			Result.setMessage("获取报名信息成功！");
 			return Result;
 		}catch(Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			Result.setStatus(ResponseCode.getErrorcode());
-			Result.setMessage("服务器出错了！请联系管理员修理~");
+			Result.setMessage("服务器出错了！请联系管理员处理~");
 			return Result;
 		}
 	}
 
-	@RequiresRoles(value={"technician","institute","assistant"},logical = Logical.OR)
-	private int getNum(){
-		User u = new User();
-		u.setUid(getUId.getid());
-		List<User> users = new ArrayList<>();
-		users= UserService.findUserByFactor(u);
-		if (users!=null){
-			return  users.get(0).getUnum();
-		}else{
-			return 0;
-		}
-	}
 
 	public void setEnlistService(EnlistServiceImpl enlistService) {
 		this.enlistService = enlistService;

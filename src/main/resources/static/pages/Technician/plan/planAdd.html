@@ -175,7 +175,7 @@
             },
             toAdd: function () {
                 //发送 get 请求
-                this.$http.get('/plan/toadd',{emulateJSON:true}).then(function(result){
+                this.$http.get('/laboratory/plan/toadd',{emulateJSON:true}).then(function(result){
                     if(result.data.status==200){
                         this.planDto=result.data.data;
                     }else {
@@ -191,13 +191,13 @@
                     this.planDto.techId= this.planDto.techDto.techId;
                     this.planDto.techName=this.planDto.techDto.techName;
                     //发送 post 请求
-                    this.$http.post('/plan/addPlan',
+                    this.$http.post('/laboratory/plan',
                         this.planDto,{emulateJSON:true}).then(function(result){
                         messageLoading();
                         if(result.data.status==200){
                             messageOk(result.data.message);
                             //关闭弹出层
-                            x_admin_close("reload");
+                            x_admin_close("reRender");
                         }else {
                             messageError(result.data.message);
                         }

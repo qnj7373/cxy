@@ -1,6 +1,7 @@
 package org.wzxy.breeze.model.po;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.wzxy.breeze.model.dto.DepartmentDto;
 
 import java.io.Serializable;
 import java.util.List;
@@ -15,7 +16,10 @@ public Department() {
 	super();
 	// TODO Auto-generated constructor stub
 }
-
+	public Department (DepartmentDto DM) {
+		this.depId=DM.getDepId();
+		this.depName=DM.getDepName();
+	}
 
 public Department(int depId, String depName) {
 	super();

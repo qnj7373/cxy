@@ -1,6 +1,7 @@
 package org.wzxy.breeze.model.po;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.wzxy.breeze.model.dto.PlanDto;
 
 import java.io.Serializable;
 
@@ -23,7 +24,19 @@ public Plan() {
 	super();
 	// TODO Auto-generated constructor stub
 }
-
+	public Plan(PlanDto plan) {
+		this.planId = plan.getPlanId();
+		this.planName = plan.getPlanName();
+		this.requirement = plan.getRequirement();
+		this.number = plan.getNumber();
+		this.labId = plan.getLabId();
+		this.labName = plan.getLabName();
+		this.depId = plan.getDepId();
+		this.depName = plan.getDepName();
+		this.techId = plan.getTechId();
+		this.techName = plan.getTechName();
+		this.planSta = plan.getPlanSta();
+	}
 
 public Plan(int planId, String planName, String requirement, String techName, String planSta, int number, int depId,
 		String depName, int labId, String labName, int techId) {

@@ -154,8 +154,11 @@
 		methods: {
 
             queryPlanByPage: function ( nowPage,pageSize ) {
+                if(nowPage>0){
+                    nowPage=nowPage-1;
+                }
                 //发送 get 请求
-                this.$http.get('/plan/queryAllPlanByPage', {
+                this.$http.get('/laboratory/plan/all/page', {
                     params: {
                         nowPage: nowPage,
                         pageSize: pageSize
@@ -164,6 +167,8 @@
                     if (result.data.status == 200) {
                         this.items = result.data.data.datas;
                         this.count = result.data.data.dataTotalCount;
+                        G.page=result.data.data.nowPage;
+                        G.pagesize=result.data.data.pageSize;
                         initTable();
                     } else {
                         messageError(result.data.message);
@@ -175,12 +180,12 @@
             },
             updatePlanSta: function (item,staVal) {
                 //发送 post 请求
-                this.$http.post('/plan/examinePlan',
+                this.$http.put('/laboratory/plan/examine',
 					{planId:item.planId,planSta:staVal},{emulateJSON:true}).then(function(result){
                     messageLoading();
                     if(result.data.status==200){
                         messageOk(result.data.message);
-                        render(G.page, G.pagesize);
+                        reRender();
                     }else {
                         messageError(result.data.message);
                     }
@@ -218,7 +223,9 @@
             this.APP.queryPlanByPage(page, pagesize);
 		}
     }
-
+    function reRender() {
+        this.APP.queryPlanByPage(G.page, G.pagesize);
+    }
 </script>
 
 

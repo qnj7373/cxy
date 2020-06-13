@@ -2,14 +2,17 @@ package org.wzxy.breeze.controller;
 
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
-import org.wzxy.breeze.BaseStore.MaintenanceBase;
+import org.wzxy.breeze.model.dto.LaboratoryDto;
 import org.wzxy.breeze.model.dto.MaintenanceDto;
-import org.wzxy.breeze.model.po.User;
+import org.wzxy.breeze.model.po.HandleResult;
+import org.wzxy.breeze.model.po.Maintenance;
+import org.wzxy.breeze.model.vo.Page;
 import org.wzxy.breeze.model.vo.ResponseCode;
 import org.wzxy.breeze.model.vo.ResponseResult;
 import org.wzxy.breeze.service.Iservice.ILaboratoryService;
@@ -18,7 +21,7 @@ import org.wzxy.breeze.service.Iservice.IPersonInfoService;
 import org.wzxy.breeze.service.Iservice.IUserService;
 import org.wzxy.breeze.service.serviceImpl.LaboratoryServiceImpl;
 import org.wzxy.breeze.service.serviceImpl.MaintenanceServiceImpl;
-import org.wzxy.breeze.utils.getUId;
+import org.wzxy.breeze.service.serviceImpl.getStatusService;
 import org.wzxy.breeze.utils.wordUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -26,12 +29,15 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @RestController
-@RequestMapping("/maintenance")
+@RequestMapping("/laboratory")
 
-public class MaintenanceController extends MaintenanceBase {
+public class MaintenanceController {
 	@Autowired
 	private ILaboratoryService LabSer;
 	@Autowired
@@ -40,11 +46,28 @@ public class MaintenanceController extends MaintenanceBase {
 	private IUserService UserService;
 	@Autowired
 	private IPersonInfoService PersonSer;
-
+	@Autowired
+	private List<Maintenance> MainList  ;
+	@Autowired
+	private Page<MaintenanceDto> Maintenpage ;
+	@Autowired
+	private Maintenance Mainten ;
+	@Autowired
+	private List<MaintenanceDto> MainDtos ;
+	@Autowired
+	private LaboratoryDto LabDto ;
+	@Autowired
+	private List<LaboratoryDto> labDtos ;
+	@Autowired
+	private HandleResult handle;
 	private MaintenanceDto MaintenDto;
-	private  ResponseResult Result = new ResponseResult();
+	@Autowired
+	private  ResponseResult Result ;
 	private int techId;
-
+	@Autowired
+	private Logger logger;
+	@Autowired
+	private getStatusService Status;
 	@GetMapping("/exportOne")
 	@RequiresRoles(value={"assistant","technician"},logical = Logical.OR)
 	public ResponseResult exportOne(MaintenanceDto mDto,HttpServletRequest request, HttpServletResponse response) throws IOException{    //����һ����
@@ -67,10 +90,10 @@ public class MaintenanceController extends MaintenanceBase {
 			Result.setMessage("导出成功！");
 			return null;
 		}catch(Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			Result.setData(null);
 			Result.setStatus(ResponseCode.getErrorcode());
-			Result.setMessage("服务器出错了！请联系管理员修理~");
+			Result.setMessage("服务器出错了！请联系管理员处理~");
 			return Result;
 		}
 
@@ -84,11 +107,11 @@ public class MaintenanceController extends MaintenanceBase {
 
 	public String queryMainBypersonId() {
 		try{
-			int perId = PersonSer.queryPersonInfoByStudentId(getNum()).getPersonId();
+			int perId = PersonSer.queryPersonInfoByStudentId( Status.getNum()).getPersonId();
 			MainDtos=MainService.queryMaintenByPerId(perId);
 			return "success";
 		}catch(Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			return "error";
 		}
 	}
@@ -97,16 +120,16 @@ public class MaintenanceController extends MaintenanceBase {
 		try{
 			labDtos.clear();
 			MainDtos.clear();
-			int lId=LabSer.queryLaboratorysByTechId(getNum()).get(0).getLabId();
+			int lId=LabSer.queryLaboratorysByTechId( Status.getNum()).get(0).getLabId();
 			MainDtos=MainService.queryMaintenByLabId(lId);
 			return "success";
 		}catch(Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			return "error";
 		}
 	}
 
-	@GetMapping("/queryMainPageBypersonId")
+	@GetMapping("/maintenance/person/page")
 	@RequiresRoles(value={"assistant","technician"},logical = Logical.OR)
 	public ResponseResult queryMainPageBypersonId(MaintenanceDto mDto) {
 		try{
@@ -121,14 +144,14 @@ public class MaintenanceController extends MaintenanceBase {
 			Result.setMessage("获取维修信息列表成功！");
 			return Result;
 				}catch(Exception e) {
-					e.printStackTrace();
+					logger.error(e.getMessage());
 				Result.setStatus(ResponseCode.getErrorcode());
-				Result.setMessage("服务器出错了！请联系管理员修理~");
+				Result.setMessage("服务器出错了！请联系管理员处理~");
 				return Result;
 				}
 	}
 
-	@GetMapping("/queryMainPageByLabId")    /////////////////////////////////////
+	@GetMapping("/maintenance/laboratory")    /////////////////////////////////////
 	@RequiresRoles(value={"assistant","technician"},logical = Logical.OR)
 	public ResponseResult queryMainPageByLabId(MaintenanceDto mDto) { //////����Ա��ά�޷�ҳ////////
 		try{
@@ -144,33 +167,33 @@ public class MaintenanceController extends MaintenanceBase {
 			return Result;
 
 		}catch(Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			Result.setStatus(ResponseCode.getErrorcode());
-			Result.setMessage("服务器出错了！请联系管理员修理~");
+			Result.setMessage("服务器出错了！请联系管理员处理~");
 			return Result;
 		}
 	}
 
 
-	@PostMapping("/addMainten")
+	@PostMapping("/maintenance")
 	@RequiresRoles("assistant")
 	public ResponseResult addMainten(MaintenanceDto mDto) {
 
 		 try{
-			 MainService.addMainten(mDto);
-			 Result.setStatus(ResponseCode.getOkcode());
-			 Result.setMessage("添加维修申请成功！");
+			 handle=MainService.addMainten(mDto);
+			 Result.setStatus(handle.getStatus());
+			 Result.setMessage(handle.getMessage());
 			 return Result;
 				}catch(Exception e) {
-					e.printStackTrace();
+					logger.error(e.getMessage());
 			 Result.setStatus(ResponseCode.getErrorcode());
-			 Result.setMessage("服务器出错了！请联系管理员修理~");
+			 Result.setMessage("服务器出错了！请联系管理员处理~");
 			 return Result;
 				}
 	}
 
 /////////////////////////查找维修单信息
-	@GetMapping("/queryMaintenById")
+	@GetMapping("/maintenance")
 	@RequiresRoles(value={"assistant","technician"},logical = Logical.OR)
 	public ResponseResult queryMaintenById(MaintenanceDto mDto) {
 		try{
@@ -180,14 +203,14 @@ public class MaintenanceController extends MaintenanceBase {
 			Result.setMessage("获取维修申请成功！");
 			return Result;
 		}catch(Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			Result.setStatus(ResponseCode.getErrorcode());
-			Result.setMessage("服务器出错了！请联系管理员修理~");
+			Result.setMessage("服务器出错了！请联系管理员处理~");
 			return Result;
 		}
 	}
 
-	@GetMapping("/TechqueryMaintenById")
+	@GetMapping("/maintenance/details")
 	@RequiresRoles(value={"assistant","technician"},logical = Logical.OR)
 	public ResponseResult TechqueryMaintenById(MaintenanceDto mDto) {
 		try{
@@ -197,41 +220,41 @@ public class MaintenanceController extends MaintenanceBase {
 			Result.setMessage("获取维修申请详细信息成功！");
 			return Result;
 		}catch(Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			Result.setStatus(ResponseCode.getErrorcode());
-			Result.setMessage("服务器出错了！请联系管理员修理~");
+			Result.setMessage("服务器出错了！请联系管理员处理~");
 			return Result;
 		}
 	}
 
-	@PostMapping("/updateMainten")
+	@PutMapping("/maintenance")
 	@RequiresRoles("assistant")
 	public ResponseResult updateMainten(MaintenanceDto mDto) {
 		try{
-			MainService.updateMainten(mDto);
-			Result.setStatus(ResponseCode.getOkcode());
-			Result.setMessage("修改维修申请信息成功！");
+			handle=MainService.updateMainten(mDto);
+			Result.setStatus(handle.getStatus());
+			Result.setMessage(handle.getMessage());
 			return Result;
 				}catch(Exception e) {
-					e.printStackTrace();
+					logger.error(e.getMessage());
 			Result.setStatus(ResponseCode.getErrorcode());
-			Result.setMessage("服务器出错了！请联系管理员修理~");
+			Result.setMessage("服务器出错了！请联系管理员处理~");
 			return Result;
 				}
 	}
 
-@GetMapping("/deleteMaintenById")
+@DeleteMapping("/maintenance")
 @RequiresRoles("assistant")
 		public ResponseResult deleteMaintenById(MaintenanceDto mDto) {
 			try{
-				MainService.deleteMaintenById(mDto.getMainId());
-				Result.setStatus(ResponseCode.getOkcode());
-				Result.setMessage("删除维修申请成功！");
+				handle=MainService.deleteMaintenById(mDto.getMainId());
+				Result.setStatus(handle.getStatus());
+				Result.setMessage(handle.getMessage());
 				return Result;
 					}catch(Exception e) {
-						e.printStackTrace();
+						logger.error(e.getMessage());
 				Result.setStatus(ResponseCode.getErrorcode());
-				Result.setMessage("服务器出错了！请联系管理员修理~");
+				Result.setMessage("服务器出错了！请联系管理员处理~");
 				return Result;
 					}
 		}
@@ -244,18 +267,6 @@ public class MaintenanceController extends MaintenanceBase {
 		binder.registerCustomEditor(Date.class, new CustomDateEditor(dateFormat, true));// CustomDateEditor为自定义日期编辑器
 	}
 
-	@RequiresRoles(value={"technician","institute","assistant"},logical = Logical.OR)
-	private int getNum(){
-		User u = new User();
-		u.setUid(getUId.getid());
-		List<User> users = new ArrayList<>();
-		users= UserService.findUserByFactor(u);
-		if (users!=null){
-			return  users.get(0).getUnum();
-		}else{
-			return 0;
-		}
-	}
 	public void setMainService(MaintenanceServiceImpl mainService) {
 		MainService = mainService;
 	}

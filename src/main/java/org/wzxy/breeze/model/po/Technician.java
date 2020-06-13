@@ -1,6 +1,7 @@
 package org.wzxy.breeze.model.po;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.wzxy.breeze.model.dto.TechnicianDto;
 
 import java.io.Serializable;
 
@@ -18,6 +19,13 @@ public Technician() {
 	// TODO Auto-generated constructor stub
 }
 
+
+	public Technician (TechnicianDto Tech) {
+		this.techId = Tech.getTechId();
+		this.techName = Tech.getTechName();
+		this.workSta = Tech.getWorkSta();
+		this.depId = Tech.getDepId();
+	}
 public Technician(int techId, String techName, String workSta, int depId) {
 	super();
 	this.techId = techId;

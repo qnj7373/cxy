@@ -152,9 +152,12 @@
 		methods: {
 
             queryEnlistByPage: function ( nowPage,pageSize ) {
+                if(nowPage>0){
+                    nowPage=nowPage-1;
+                }
                 var Id = location.hash.substring(1) // 去掉 #
                 //发送 get 请求
-                this.$http.get('/enlist/queryEnlistforplanIdByPage', {
+                this.$http.get('/laboratory/enlist/plan/page', {
                     params: {
                         planId:Id,
                         nowPage: nowPage,
@@ -164,6 +167,8 @@
                     if (result.data.status == 200) {
                         this.items = result.data.data.datas;
                         this.count = result.data.data.dataTotalCount;
+                        G.page=result.data.data.nowPage;
+                        G.pagesize=result.data.data.pageSize;
                         this.searchDepId = result.data.data.commonFlag;
                         initTable();
                     } else {
@@ -178,11 +183,11 @@
                 this.enlistDto.enlistId=item.enlistId;
                 this.enlistDto.signSta=staVal;
                 //发送 get 请求
-                this.$http.post('/enlist/examineEnlist',
+                this.$http.put('/laboratory/enlist',
                     this.enlistDto, {emulateJSON: true}).then(function (result) {
                     if (result.data.status == 200) {
                         messageOk(result.data.message);
-                        render(G.page, G.pagesize);
+                        reRender();
                     } else {
                         messageError(result.data.message);
                     }
@@ -243,6 +248,9 @@
 		}else{
             this.APP.queryEnlistByPage(page, pagesize);
 		}
+    }
+    function reRender() {
+        this.APP.queryEnlistByPage(G.page, G.pagesize);
     }
 
 </script>

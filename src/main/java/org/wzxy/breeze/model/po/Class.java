@@ -1,6 +1,7 @@
 package org.wzxy.breeze.model.po;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.wzxy.breeze.model.dto.ClassDto;
 
 import java.io.Serializable;
 
@@ -14,6 +15,14 @@ public class Class implements Serializable {
 
 	public Class() {
 		super();
+	}
+
+	public Class(ClassDto cla) {
+		if(cla!=null) {
+			this.classId=cla.getClassId();
+			this.className=cla.getClassName();
+			this.depId=cla.getDepId();
+		}
 	}
 
 	public Class(int classId, String className, int depId) {

@@ -130,7 +130,7 @@
 
             queryMyEnlistPage: function ( nowPage,pageSize ) {
                 //发送 get 请求
-                this.$http.get('/enlist/queryEnlistBypersonId', {
+                this.$http.get('/laboratory/enlist/person', {
                     params: {
                         nowPage: nowPage,
                         pageSize: pageSize
@@ -139,6 +139,8 @@
                     if (result.data.status == 200) {
                         this.items = result.data.data.datas;
                         this.count = result.data.data.dataTotalCount;
+                        G.page=result.data.data.nowPage;
+                        G.pagesize=result.data.data.pageSize;
                         initTable();
                     } else {
                         messageError(result.data.message);

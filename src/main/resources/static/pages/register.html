@@ -268,7 +268,7 @@
                         }
 
                         //发送 post 请求
-                        this.$http.post('/personInfo/addPerson',
+                        this.$http.post('/laboratory/person',
                             person,{emulateJSON:true}).then(function(result){
                             messageLoading();
                             if(result.data.status==200){

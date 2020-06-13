@@ -1,6 +1,7 @@
 package org.wzxy.breeze.model.po;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.wzxy.breeze.model.dto.LaboratoryDto;
 
 import java.io.Serializable;
 import java.util.List;
@@ -24,7 +25,12 @@ public Laboratory() {
 }
 
 
-
+	public Laboratory(LaboratoryDto lab) {
+		this.labId = lab.getLabId();
+		this.labName = lab.getLabName();
+		this.depId = lab.getDepId();
+		this.techId = lab.getTechId();
+	}
 
 public Laboratory(int labId, String labName, int depId, int techId) {
 	super();

@@ -1,6 +1,7 @@
 package org.wzxy.breeze.model.po;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.wzxy.breeze.model.dto.WorkRecordDto;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
@@ -28,6 +29,20 @@ public WorkRecord() {
 	super();
 	// TODO Auto-generated constructor stub
 }
+	public WorkRecord (WorkRecordDto workRe) {
+
+		this.recordId = workRe.getRecordId();
+		this.weeklyTimes = workRe.getWeeklyTimes();
+		this.labId = workRe.getLabId();
+		this.date = workRe.getDate();
+		this.week = workRe.getWeek();
+		this.personId = workRe.getPersonId();
+		this.personName = workRe.getPersonName();
+		this.Health = workRe.getHealth();
+		this.equipment = workRe.getEquipment();
+		this.sysTime = workRe.getSysTime();
+	}
+
 public WorkRecord(int recordId, String weeklyTimes, int labId, Date date, String week, int personId, String health,
 		String equipment, Timestamp sysTime) {
 	super();

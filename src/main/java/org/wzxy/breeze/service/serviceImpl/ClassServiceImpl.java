@@ -1,13 +1,17 @@
 package org.wzxy.breeze.service.serviceImpl;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
-import org.wzxy.breeze.BaseStore.ClassBase;
 import org.wzxy.breeze.mapper.classMapper;
 import org.wzxy.breeze.model.dto.ClassDto;
+import org.wzxy.breeze.model.dto.DepartmentDto;
 import org.wzxy.breeze.model.po.Class;
+import org.wzxy.breeze.model.po.Department;
+import org.wzxy.breeze.model.po.HandleResult;
 import org.wzxy.breeze.model.vo.Page;
+import org.wzxy.breeze.model.vo.ResponseCode;
 import org.wzxy.breeze.service.Iservice.IClassService;
 
 import javax.annotation.Resource;
@@ -15,10 +19,26 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class ClassServiceImpl extends ClassBase implements IClassService {
-
+public class ClassServiceImpl implements IClassService {
+	@Autowired
+	private List<Department> DepList;
+	@Autowired
+	private Page<DepartmentDto> Deppage;
+	@Autowired
+	private List<ClassDto> classDtos;
+	@Autowired
+	private List<Class> ClaList ;
+	@Autowired
+	private Page<Class> Classpage;
+	@Autowired
+	private Page<ClassDto> Cpage;
+	@Autowired
+	private Class cla;
     @Resource
 	private classMapper classdao;
+	@Autowired
+	private HandleResult handle ;
+	private int exist=-1;
 	/////班级的业务逻辑  ========================
 
 	@Override
@@ -27,17 +47,45 @@ public class ClassServiceImpl extends ClassBase implements IClassService {
 			@CacheEvict(value = "classZone" , key = "'ClaPaging'+#nowPage+','+#pageSize")
 	})*/
 	@CacheEvict(cacheNames = "classZone",allEntries = true)
-	public void addClass(ClassDto classto) {
-		Class cla= new Class();
-		classdao.addClass(cla);
+	public HandleResult addClass(ClassDto classto) {
+		exist=classdao.isExist(classto.getClassId());
+		if(exist==0){
+			if(classdao.addClass( new Class(classto))){
+				handle.setStatus(ResponseCode.getOkcode());
+				handle.setMessage("新增班级成功!");
+			}else{
+				handle.setStatus(ResponseCode.getFailcode());
+				handle.setMessage("新增班级失败!");
+			}
+			return handle;
+		}else{
+			handle.setStatus(ResponseCode.getFailcode());
+			handle.setMessage("新增失败，班级已存在!");
+			return handle;
+		}
 
 	}
 
 	@Override
 	@CacheEvict(cacheNames = "classZone",allEntries = true)
-	public void deleteClassById(int classId) {
-		cla=classdao.queryClassById(classId);
-		classdao.deleteClassById(cla);
+	public HandleResult deleteClassById(int classId) {
+
+		exist=classdao.isExist(classId);
+		if(exist==1){
+			cla=classdao.queryClassById(classId);
+			if(classdao.deleteClassById(cla)){
+				handle.setStatus(ResponseCode.getOkcode());
+				handle.setMessage("删除班级成功!");
+			}else{
+				handle.setStatus(ResponseCode.getFailcode());
+				handle.setMessage("删除班级失败!");
+			}
+			return handle;
+		}else{
+			handle.setStatus(ResponseCode.getFailcode());
+			handle.setMessage("删除失败，班级不存在!");
+			return handle;
+		}
 	}
 
 	@Override
@@ -45,7 +93,7 @@ public class ClassServiceImpl extends ClassBase implements IClassService {
 	public ClassDto  queryClassById(int classId) {
 		cla=classdao.queryClassById(classId);
 		if(cla!=null) {
-			return createClassDto(cla)	;
+			return new ClassDto(cla)	;
 		}else {
 			return null;
 		}
@@ -57,7 +105,7 @@ public class ClassServiceImpl extends ClassBase implements IClassService {
 	public List<ClassDto> queryAllClass() {
 		classDtos.clear();
 		for(Class cla:classdao.getAllClass()) {
-			classDtos.add(createClassDto(cla));
+			classDtos.add(new  ClassDto(cla));
 		}
 		return classDtos;
 	}
@@ -70,7 +118,7 @@ public class ClassServiceImpl extends ClassBase implements IClassService {
 			return null;
 		}
 		for(Class cla:classdao.getClassBydepId(depId)) {
-			classDtos.add(createClassDto(cla));
+			classDtos.add(new ClassDto(cla));
 		}
 		return classDtos;
 	}
@@ -78,9 +126,23 @@ public class ClassServiceImpl extends ClassBase implements IClassService {
 
 	@Override
 	@CacheEvict(cacheNames = "classZone",allEntries = true)
-	public void updateClass(ClassDto classdto) {
-		classdao.updateClass(createClass(classdto));
+	public HandleResult updateClass(ClassDto classdto) {
 
+		exist=classdao.isExist( classdto.getClassId());
+		if(exist==1){
+			if(classdao.updateClass(new Class(classdto))){
+				handle.setStatus(ResponseCode.getOkcode());
+				handle.setMessage("更新班级成功!");
+			}else{
+				handle.setStatus(ResponseCode.getFailcode());
+				handle.setMessage("更新班级失败!");
+			}
+			return handle;
+		}else{
+			handle.setStatus(ResponseCode.getFailcode());
+			handle.setMessage("更新失败，班级不存在!");
+			return handle;
+		}
 	}
 
 
@@ -99,7 +161,7 @@ public class ClassServiceImpl extends ClassBase implements IClassService {
 				nowPage=Cpage.getPageTotalCount()-1;
 			}
 		}
-		Cpage.setNowPage(nowPage);
+		Cpage.setNowPage(nowPage+1);
 		int errorfix=nowPage*pageSize;
 		int wsize=classDtos.size();
 		int fixTo=(nowPage*pageSize)+pageSize;
@@ -107,7 +169,7 @@ public class ClassServiceImpl extends ClassBase implements IClassService {
 			errorfix=0;
 			wsize=3;
 			fixTo=3;
-			Cpage.setNowPage(errorfix);
+			Cpage.setNowPage(errorfix+1);
 			Cpage.setPageSize(fixTo);
 		}
 		if(classDtos.size()>=pageSize) {   //判断页内数据能否构成满页的if

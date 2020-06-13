@@ -236,5 +236,8 @@ function x_admin_close(callback) {
         case "render": //重新渲染列表组件
             parent.render();
             break;
+        case "reRender": //重新渲染列表组件
+            parent.reRender();
+            break;
     }
 }

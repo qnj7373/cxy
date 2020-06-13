@@ -1,6 +1,7 @@
 package org.wzxy.breeze.model.po;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.wzxy.breeze.model.dto.UserDto;
 
 import java.io.Serializable;
 import java.util.List;
@@ -18,7 +19,12 @@ public class User implements Serializable {
         	super();
         }
 
-
+	public User (UserDto userdto) {
+		this.uid = userdto.getUid();
+		this.unum = userdto.getUnum();
+		this.upwd = userdto.getUpwd();
+		this.utype = userdto.getUtype();
+	}
 
 
 		public User(int uid, int unum, String upwd, String utype) {
